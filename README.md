@@ -66,7 +66,7 @@ v0.4:
 * Updated test_ESPPRC.
 
 v0.5:
-* Migrated ESPP ESPPRC to Pylgrim and the test to VOC.
+* Migrated ESPP ESPPRC to Pylgrim and tests elsewhere.
 
 ## Copyright
 Copyright 2018 Toon Weyens, Daan van Vugt
