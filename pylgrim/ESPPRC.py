@@ -9,7 +9,7 @@
 #   Toon Weyens
 #
 # References: 
-#   [2]: "Accelerated label setting algorithms for the elementary resource constrained shortest path problem" by Boland, Natashia (DOI: 10.1016/j.orl.2004.11.011)
+#   [1]: "Accelerated label setting algorithms for the elementary resource constrained shortest path problem" by Boland, Natashia (DOI: 10.1016/j.orl.2004.11.011)
 import networkx as nx
 import numpy as np
 from . import path_tools as pt
