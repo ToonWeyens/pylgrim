@@ -38,8 +38,6 @@ resource_treated = 0
 def preprocess_ESPPRC(G, source, target, max_res):
     global resource_treated
     
-    log_str = 'Pre-process graph'
-    print(log_str)
     logging.info('Pre-process graph')
     logging.info('')
     
@@ -152,9 +150,7 @@ def GLSA(G, S, source, target, max_res, res_min):
             
             # error if the source is a child. The in-edges of the source need to be separated from the out-edges.
             if v == source:
-                log_str = 'ERROR: source cannot be a child'
-                print(log_str)
-                logging.critical(log_str)
+                logging.critical('ERROR: source cannot be a child')
                 quit()
             
             # determine whether to create a new label on the child node
@@ -247,7 +243,6 @@ def GLSA(G, S, source, target, max_res, res_min):
     # return cheapest paths with label
     logging.info('  Select cheapest path to {}'.format(target))
     logging.info('')
-    print('')
     
     least_cost = inf
     for p in range(0,len(labels[target])):
@@ -261,9 +256,7 @@ def GLSA(G, S, source, target, max_res, res_min):
 # (based on algorithm 2.2, from [1])
 # Note: The graph must have been preprocessed so that it is reduced and has the minimal resource information in "res_min".
 def GSSA(G, source, target, max_res, res_min):
-    log_str = 'Searching for shortest path {} -> {}'.format(source, target)
-    print(log_str)
-    logging.info(log_str)
+    logging.info('Searching for shortest path {} -> {}'.format(source, target))
     logging.info('')
     
     # initialize node resources and not done
