@@ -13,22 +13,15 @@
 from collections import deque, OrderedDict
 import networkx as nx
 import logging
-from . import path_tools as pt
+from . import tools as pt
 
-# logging
-log_lvl = ''
-#log_lvl = 'INFO'
-#log_lvl = 'DEBUG'
-if log_lvl == 'DEBUG' or log_lvl == 'INFO':
-    logging.basicConfig(format='%(asctime)s %(message)s',
-        datefmt='%d/%m/%Y %H:%M:%S',
-        filename='ESPP.log',
-        filemode='w',
-        level=log_lvl)
+#logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
-# Truncated labelling algorithm for dynamic kSPP
-# (based on algorithm 3 from [1])
 def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_paths = False):
+    """Truncated labelling algorithm for dynamic kSPP
+    (based on algorithm 3 from [1])"""
+    
     # 1. Initialization
     inf = float('inf')
     # paths for each node
@@ -48,7 +41,7 @@ def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_
         # select element FIFO
         u = L_q.popleft()
         L.remove(u)
-        logging.debug('  element {}'.format(u))
+        logger.debug('  element {}'.format(u))
         
         # Set up check for NCC:
         #   1. All requested paths K_i have been determined to node i.
@@ -62,17 +55,17 @@ def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_
         
         # extend label for each child
         for v, e in G.succ[u].items():
-            logging.debug('    treating edge {} -> {}, weight = {} with current paths:'.format(u,v,e['weight']))
+            logger.debug('    treating edge {} -> {}, weight = {} with current paths:'.format(u,v,e['weight']))
             first_elem_path = 0
             for n in range(0,min(len(paths.get(v,[])),K[v])):
-                logging.debug('      {} ({})'.format(pt.print_path(paths[v][n]),costs[v][n]))
-            logging.debug('')
+                logger.debug('      {} ({})'.format(pt.print_path(paths[v][n]),costs[v][n]))
+            logger.debug('')
             
             # error if the source is a child. The in-edges of the source need to be separated from the out-edges.
             if v == source:
                 log_str = 'ERROR: source cannot be a child'
                 print(log_str)
-                logging.critical(log_str)
+                logger.critical(log_str)
                 quit()
             
             # if first test indicates possible NCC, perform test 2 and 3
@@ -84,17 +77,17 @@ def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_
                 NCC_conds[1] = True
                 NCC_conds[2] = False
                 NCCs = []
-                logging.debug('      testing because test 0 was not negative')
+                logger.debug('      testing because test 0 was not negative')
                 for ku in range(0,len(costs.get(u,[]))):
                     if not (v in paths[u][ku]):
-                        logging.debug('        {} not in {}'.format(v,pt.print_path(paths[u][ku])))
-                        logging.debug('          -> at least one elementary path {}'.format(ku))
+                        logger.debug('        {} not in {}'.format(v,pt.print_path(paths[u][ku])))
+                        logger.debug('          -> at least one elementary path {}'.format(ku))
                         NCC_conds[1] = False
                         first_elem_path = ku
                         break
                     else:
-                        logging.debug('        {} in {}'.format(v,pt.print_path(paths[u][ku])))
-                        logging.debug('        NCC criterion: {} + {} ?< {}'.format(costs[u][ku],e['weight'],costs.get(v,[inf])[0]))
+                        logger.debug('        {} in {}'.format(v,pt.print_path(paths[u][ku])))
+                        logger.debug('        NCC criterion: {} + {} ?< {}'.format(costs[u][ku],e['weight'],costs.get(v,[inf])[0]))
                         if (costs[u][ku] + e['weight'] < costs.get(v,[inf])[0]):
                             NCC_conds[2] = True
                             for n in paths[u][ku]:
@@ -104,21 +97,21 @@ def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_
             # check for all tests
             if all(NCC_conds):
                 if retry_paths and not u == L_first_retry:
-                    logging.debug('      putting node {} back in the queue to retry later'.format(u))
+                    logger.debug('      putting node {} back in the queue to retry later'.format(u))
                     
                     # put it back in queue if this is the first
                     if L_first_retry == None:
                         L_first_retry = u
                     L.add(u)
                     L_q.append(u)
-                    logging.debug('  {} elements in queue'.format(len(L)))
+                    logger.debug('  {} elements in queue'.format(len(L)))
                     
                     # skip current node
                     break
                 else:
-                    logging.debug('      returning {} NCC(s)'.format(len(NCCs)))
+                    logger.debug('      returning {} NCC(s)'.format(len(NCCs)))
                     for i in range(0,len(NCCs)):
-                        logging.debug('        {}'.format(NCCs[i]))
+                        logger.debug('        {}'.format(NCCs[i]))
                     return paths, costs, NCCs
                     
             else:
@@ -137,7 +130,7 @@ def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_
                     if v in paths[u][ku]:
                         continue
                     
-                    logging.debug('      from node {} trying to extend path {}: {} -> {}'.format(u,ku,pt.print_path(paths[u][ku],max_path_len_for_print=3),v))
+                    logger.debug('      from node {} trying to extend path {}: {} -> {}'.format(u,ku,pt.print_path(paths[u][ku],max_path_len_for_print=3),v))
                     
                     # Loop over all paths of v.
                     # Note that the ranges here are simply 0 to K[v] as more paths to v are
@@ -150,9 +143,9 @@ def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_
                         cost_v = costs.get(v,[inf])
                         cost_ku = cost_u[ku] if ku < len(cost_u) else inf
                         cost_kv = cost_v[kv] if kv < len(cost_v) else inf
-                        logging.debug('        ku = {}/{}, kv = {}/{}'.format(ku,K[u]-1,kv,K[v]-1))
-                        logging.debug('          current cost of path {}: {}'.format(kv,cost_kv))
-                        logging.debug('          cost of potential new path = {}'.format(cost_ku+e['weight']))
+                        logger.debug('        ku = {}/{}, kv = {}/{}'.format(ku,K[u]-1,kv,K[v]-1))
+                        logger.debug('          current cost of path {}: {}'.format(kv,cost_kv))
+                        logger.debug('          cost of potential new path = {}'.format(cost_ku+e['weight']))
                         #if (cost_ku + e['weight'] < cost_kv) or \
                             #(cost_ku + e['weight'] == cost_kv and not path_v == paths[v][kv] and not kv >= len(paths[v])):
                         # by default add path if not higher cost
@@ -160,13 +153,13 @@ def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_
                         # but check for duplicates all previous paths up to kv, as long as they have been initialized
                         for kv2 in range(0,min(kv,len(paths[v])-1)+1):
                             if path_v == paths[v][kv2]:
-                                logging.debug('          path already existed in paths[{}][{}]'.format(v,kv2))
+                                logger.debug('          path already existed in paths[{}][{}]'.format(v,kv2))
                                 add_new_path = False
                                 break
                         
                         # check maximum path length if positive
                         if max_path_len > 0 and len(path_v) > max_path_len:
-                            logging.debug('          maximum path length {} reached'.format(max_path_len))
+                            logger.debug('          maximum path length {} reached'.format(max_path_len))
                             add_new_path = False
                             break
                             
@@ -175,7 +168,7 @@ def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_
                             L_first_retry = None
                             
                             # insert new path with cost
-                            logging.debug('          inserting path {}({}) in path[{}] at position {}'.format(path_v,cost_ku + e['weight'],v,kv))
+                            logger.debug('          inserting path {}({}) in path[{}] at position {}'.format(path_v,cost_ku + e['weight'],v,kv))
                             costs[v].insert(kv,cost_ku + e['weight'])
                             paths[v].insert(kv,path_v)
                             
@@ -186,21 +179,21 @@ def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_
                             
                             # possibly add node v to L
                             if not (v in L):
-                                logging.debug('          add node {} to set L'.format(v))
+                                logger.debug('          add node {} to set L'.format(v))
                                 L.add(v)
                                 L_q.append(v)
                             
                             # skip all following kv to next path ku
                             break
                         else:
-                            logging.debug('          this path was not inserted')
+                            logger.debug('          this path was not inserted')
             
-            logging.debug('    resulting paths to {}:'.format(v))
+            logger.debug('    resulting paths to {}:'.format(v))
             for n in range(0,min(len(paths[v]),K[v])):
-                logging.debug('      {}({})'.format(pt.print_path(paths[v][n]),costs[v][n]))
-            logging.debug('')
-        logging.debug('  {} elements in queue'.format(len(L)))
-        logging.debug('')
+                logger.debug('      {}({})'.format(pt.print_path(paths[v][n]),costs[v][n]))
+            logger.debug('')
+        logger.debug('  {} elements in queue'.format(len(L)))
+        logger.debug('')
         #print('  ------------------------------------------------------')
         #input("  Press Enter to continue...")
         #print('  ------------------------------------------------------')
@@ -209,10 +202,11 @@ def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_
     return paths, costs, []
 
 
-# Dynamic labelling algorithm
-# (based on algorithm 4 from [1])
 def DLA(G, source, min_K=1, output_pos = False, remove_excess_paths = False, max_path_len = -1):
-    logging.info('source: {}'.format(source))
+    """Dynamic labelling algorithm
+    (based on algorithm 4 from [1])"""
+    
+    logger.info('source: {}'.format(source))
     
     # initialize K label to minimal value and not done
     K = {}
@@ -225,8 +219,8 @@ def DLA(G, source, min_K=1, output_pos = False, remove_excess_paths = False, max
         paths, costs, NCCs = TLAdynK(G, source, K)
         
         # output for tests
-        logging.info('')
-        logging.info('costs summary of this level:')
+        logger.info('')
+        logger.info('costs summary of this level:')
         costs_tot = dict()
         for n in G.nodes():
             for p in range(0,len(paths.get(n,[]))):
@@ -239,18 +233,18 @@ def DLA(G, source, min_K=1, output_pos = False, remove_excess_paths = False, max
             c_id += 1
             if costs_sorted[c] < 0 or output_pos:
                 path_short = pt.print_path(c)
-                logging.info('  {}: {} for {}'.format(c_id,costs_sorted[c],path_short))
-        logging.info('')
+                logger.info('  {}: {} for {}'.format(c_id,costs_sorted[c],path_short))
+        logger.info('')
         
         # check for absence negative cost cycles
         if NCCs == []:
             break
         else:
-            logging.debug('updating K:')
+            logger.debug('updating K:')
             for n in NCCs:
                 K[n] += 1
-                logging.debug('  K[{}] -> {}:'.format(n,K[n]))
-            logging.debug('')
+                logger.debug('  K[{}] -> {}:'.format(n,K[n]))
+            logger.debug('')
             #print('========================================================')
             #input("Press Enter to continue...")
             #print('========================================================')

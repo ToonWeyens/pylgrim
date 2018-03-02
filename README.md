@@ -68,5 +68,10 @@ v0.4:
 v0.5:
 * Migrated ESPP ESPPRC to Pylgrim and tests elsewhere.
 
+v0.6:
+* Logging is much better now.
+* Migrated tests back and adapted them.
+* "path_tools" now is renamed to "tools" and contains three new tools: two to decouple the source and back, and one to create a test graph.
+
 ## Copyright
 Copyright 2018 Toon Weyens, Daan van Vugt
