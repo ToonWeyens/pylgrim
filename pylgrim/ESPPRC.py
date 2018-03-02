@@ -48,7 +48,7 @@ def preprocess_ESPPRC(G, source, target, max_res):
     # iterate over all resources and delete nodes that are not reachable
     logging.info('  delete unreachable nodes')
     for res in range(0,n_res):
-        logging.info('    treating resource {}'.format(res))
+        logging.debug('    treating resource {}'.format(res))
         resource_treated = res
         
         logging.debug('      Calculate feasible paths from source')
@@ -63,8 +63,8 @@ def preprocess_ESPPRC(G, source, target, max_res):
         if target not in reachable_nodes:
             reachable_nodes.append(target)
         
-    logging.info('    {} reachable nodes:'.format(len(reachable_nodes)))
-    logging.info('      {}'.format(reachable_nodes))
+    logging.debug('    {} reachable nodes:'.format(len(reachable_nodes)))
+    logging.debug('      {}'.format(reachable_nodes))
     logging.info('')
     
     # set up reduced graph
@@ -83,7 +83,7 @@ def preprocess_ESPPRC(G, source, target, max_res):
     logging.info('  Calculate least-resource pairs')
     res_min = list()
     for res in range(0,n_res):
-        logging.info('    treating resource {}'.format(res))
+        logging.debug('    treating resource {}'.format(res))
         resource_treated = res
         res_min.append(dict(nx.all_pairs_dijkstra_path_length(H, weight=_res_cost_i)))
     
@@ -95,8 +95,8 @@ def preprocess_ESPPRC(G, source, target, max_res):
 # General Label Setting Algorithm
 # (based on algorithm 2.1, step 1 and 2, from [1])
 def GLSA(G, S, source, target, max_res, res_min):
-    logging.info('  Initialize')
-    logging.info('')
+    logging.debug('  Initialize')
+    logging.debug('')
     
     # 1. Initialization
     inf = float('inf')
@@ -111,10 +111,10 @@ def GLSA(G, S, source, target, max_res, res_min):
     L = set([(source,0)])
     
     # 2. select lexicographically minimal label
-    logging.info('  Loop over labels to be extended')
+    logging.debug('  Loop over labels to be extended')
     while L:
         # select lexicographically minimal label
-        logging.info('    Select lexicographically minimal label:')
+        logging.debug('    Select lexicographically minimal label:')
         LML_for_prev_res= L
         for res in range(0,n_res+len(S)):
             res_LML = inf
@@ -143,7 +143,7 @@ def GLSA(G, S, source, target, max_res, res_min):
         
         # extend label for each child
         for v, e in G.succ[u].items():
-            logging.info('    treating edge {} -> {} (C {} | R {})'.format(u,v,e['weight'],e['res_cost']))
+            logging.debug('    treating edge {} -> {} (C {} | R {})'.format(u,v,e['weight'],e['res_cost']))
             if len(paths.get(v,[])) > 0: logging.debug('      with current paths:')
             for n in range(0,len(paths.get(v,[]))):
                 logging.debug('        {} (C {} | R {})'.format(pt.print_path(paths[v][n]),labels[v][n][0],labels[v][n][1]))
@@ -241,8 +241,8 @@ def GLSA(G, S, source, target, max_res, res_min):
             logging.debug('')
     
     # return cheapest paths with label
-    logging.info('  Select cheapest path to {}'.format(target))
-    logging.info('')
+    logging.debug('  Select cheapest path to {}'.format(target))
+    logging.debug('')
     
     least_cost = inf
     for p in range(0,len(labels[target])):

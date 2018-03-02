@@ -48,7 +48,7 @@ def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_
         # select element FIFO
         u = L_q.popleft()
         L.remove(u)
-        logging.info('  element {}'.format(u))
+        logging.debug('  element {}'.format(u))
         
         # Set up check for NCC:
         #   1. All requested paths K_i have been determined to node i.
@@ -62,11 +62,11 @@ def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_
         
         # extend label for each child
         for v, e in G.succ[u].items():
-            logging.info('    treating edge {} -> {}, weight = {} with current paths:'.format(u,v,e['weight']))
+            logging.debug('    treating edge {} -> {}, weight = {} with current paths:'.format(u,v,e['weight']))
             first_elem_path = 0
             for n in range(0,min(len(paths.get(v,[])),K[v])):
-                logging.info('      {} ({})'.format(pt.print_path(paths[v][n]),costs[v][n]))
-            logging.info('')
+                logging.debug('      {} ({})'.format(pt.print_path(paths[v][n]),costs[v][n]))
+            logging.debug('')
             
             # error if the source is a child. The in-edges of the source need to be separated from the out-edges.
             if v == source:
@@ -111,14 +111,14 @@ def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_
                         L_first_retry = u
                     L.add(u)
                     L_q.append(u)
-                    logging.info('  {} elements in queue'.format(len(L)))
+                    logging.debug('  {} elements in queue'.format(len(L)))
                     
                     # skip current node
                     break
                 else:
-                    logging.info('      returning {} NCC(s)'.format(len(NCCs)))
+                    logging.debug('      returning {} NCC(s)'.format(len(NCCs)))
                     for i in range(0,len(NCCs)):
-                        logging.info('        {}'.format(NCCs[i]))
+                        logging.debug('        {}'.format(NCCs[i]))
                     return paths, costs, NCCs
                     
             else:
@@ -137,7 +137,7 @@ def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_
                     if v in paths[u][ku]:
                         continue
                     
-                    logging.info('      from node {} trying to extend path {}: {} -> {}'.format(u,ku,pt.print_path(paths[u][ku],max_path_len_for_print=3),v))
+                    logging.debug('      from node {} trying to extend path {}: {} -> {}'.format(u,ku,pt.print_path(paths[u][ku],max_path_len_for_print=3),v))
                     
                     # Loop over all paths of v.
                     # Note that the ranges here are simply 0 to K[v] as more paths to v are
@@ -195,12 +195,12 @@ def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_
                         else:
                             logging.debug('          this path was not inserted')
             
-            logging.info('    resulting paths to {}:'.format(v))
+            logging.debug('    resulting paths to {}:'.format(v))
             for n in range(0,min(len(paths[v]),K[v])):
-                logging.info('      {}({})'.format(pt.print_path(paths[v][n]),costs[v][n]))
-            logging.info('')
-        logging.info('  {} elements in queue'.format(len(L)))
-        logging.info('')
+                logging.debug('      {}({})'.format(pt.print_path(paths[v][n]),costs[v][n]))
+            logging.debug('')
+        logging.debug('  {} elements in queue'.format(len(L)))
+        logging.debug('')
         #print('  ------------------------------------------------------')
         #input("  Press Enter to continue...")
         #print('  ------------------------------------------------------')
@@ -246,11 +246,11 @@ def DLA(G, source, min_K=1, output_pos = False, remove_excess_paths = False, max
         if NCCs == []:
             break
         else:
-            logging.info('updating K:')
+            logging.debug('updating K:')
             for n in NCCs:
                 K[n] += 1
-                logging.info('  K[{}] -> {}:'.format(n,K[n]))
-            logging.info('')
+                logging.debug('  K[{}] -> {}:'.format(n,K[n]))
+            logging.debug('')
             #print('========================================================')
             #input("Press Enter to continue...")
             #print('========================================================')
