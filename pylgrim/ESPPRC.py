@@ -15,7 +15,7 @@ import numpy as np
 import logging
 from . import tools as pt
 
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # global variables

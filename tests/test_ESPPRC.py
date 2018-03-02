@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import pylgrim
 import logging
 
-#logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # create test graph
@@ -22,8 +22,8 @@ print('')
 source_in = 'source_in'
 pylgrim.tools.decouple_source(G, source, source_in=source_in)
 
-nx.draw_circular(G,with_labels=True)
-plt.show()
+#nx.draw_circular(G,with_labels=True)
+#plt.show()
 
 # solve using ESSPRC
 #target = 4

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import pylgrim
 import logging
 
-#logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # create test graph
