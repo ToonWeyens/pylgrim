@@ -19,13 +19,17 @@ from . import tools as pt
 logger = logging.getLogger(__name__)
 
 # global variables
-_resource_treated = 0
+_resource_nr = 0
+_resource_name = 'res_cost'
 
-def prune_graph(G, source, target, max_res):
-    """prune graph {G}
-    (step 1. of preprocess)"""
+def prune_graph(G, source, target, max_res, res_name='res_cost', atts={'weight', 'res_cost'}):
+    """first step of graph {G} preprocessing
+    (based on algorithm 2.1, step 0, from [1])
+    Prune the graph, reducing the number of nodes and arcs, by considering least resource paths from the path {source} node to each node in the graph and from each node in the graph to the path {target} node, for each resource subject to a maximum resource in {max_res}."""
     
-    global _resource_treated
+    global _resource_nr, _resource_name
+    
+    _resource_name = res_name
     
     logger.info('Pre-process graph')
     
@@ -37,7 +41,7 @@ def prune_graph(G, source, target, max_res):
     logger.debug('Delete unreachable nodes')
     for res in range(0,n_res):
         logger.debug('Treating resource {}'.format(res))
-        _resource_treated = res
+        _resource_nr = res
         
         logger.debug('Calculate feasible paths from source')
         lengths = set(nx.single_source_dijkstra_path_length(G, source, cutoff=max_res[res], weight=_res_cost_i))
@@ -60,19 +64,22 @@ def prune_graph(G, source, target, max_res):
     for node in reachable_nodes:
         for node2 in reachable_nodes:
             if G.has_edge(node, node2) and not H.has_edge(node,node2): 
-                weight_e = G.get_edge_data(node,node2)['weight']
-                res_cost_e = G.get_edge_data(node,node2)['res_cost']
-                H.add_edge(node, node2, weight=weight_e, res_cost=res_cost_e)
-    #nx.draw_circular(H,with_labels=True)
+                H.add_edge(node, node2)
+                for att in atts:
+                    H[node][node2][att] = G.get_edge_data(node,node2)[att]
+    nx.draw_circular(H,with_labels=True)
     
     # return pruned graph
     return H
 
-def setup_least_resource_paths_ESPPRC(G):
-    """set up least resource paths in graph {G}
-    (step 2. of preprocess)"""
+def setup_least_resource_paths_ESPPRC(G, res_name='res_cost'):
+    """second step of graph {G} preprocessing
+    (based on algorithm 2.1, step 0, from [1])
+    Solve the all-pairs shortest path problem on the graph, with lengths set to {_res_cost_i} , for each resource r."""
     
-    global _resource_treated
+    global _resource_nr, _resource_name
+    
+    _resource_name = res_name
     
     # iterate over all resources and calculate least-resource paths for all pairs
     n_res = G.graph['n_res']
@@ -80,28 +87,26 @@ def setup_least_resource_paths_ESPPRC(G):
     res_min = list()
     for res in range(0,n_res):
         logger.debug('Treating resource {}'.format(res))
-        _resource_treated = res
+        _resource_nr = res
         res_min.append(dict(nx.all_pairs_dijkstra_path_length(G, weight=_res_cost_i)))
     
     # return preprocessed network and least-resource paths
     return res_min
 
-def preprocess(G, source, target, max_res):
+def preprocess(G, source, target, max_res, res_name='res_cost', atts={'weight', 'res_cost'}):
     """preprocess graph {G}
-    (based on algorithm 2.1, step 0, from [1])
-       1. Prune the graph, reducing the number of nodes and arcs, by considering least resource paths from the path {source} node to each node in the graph and from each node in the graph to the path {target} node, for each resource subject to a maximum resource in {max_res}.
-       2. Solve the all-pairs shortest path problem on the graph, with lengths set to {_res_cost_i} , for each resource r."""
+    (based on algorithm 2.1, step 0, from [1])"""
     
     # 1. prune graph
-    H = prune_graph(G, source, target, max_res)
+    H = prune_graph(G, source, target, max_res, res_name=res_name, atts=atts)
     
     # 2. set up least resource paths
-    res_min = setup_least_resource_paths_ESPPRC(H)
+    res_min = setup_least_resource_paths_ESPPRC(H, res_name=res_name)
     
     # return preprocessed network and least-resource paths
     return H, res_min
 
-def GLSA(G, S, source, target, max_res, res_min):
+def GLSA(G, S, source, target, max_res, res_min, res_name='res_cost'):
     """General Label Setting Algorithm
     (based on algorithm 2.1, step 1 and 2, from [1])"""
     
@@ -155,7 +160,7 @@ def GLSA(G, S, source, target, max_res, res_min):
         
         # extend label for each child
         for v, e in G.succ[u].items():
-            logger.debug('treating edge {} -> {} (C {} | R {})'.format(u,v,e['weight'],e['res_cost']))
+            logger.debug('treating edge {} -> {} (C {} | R {})'.format(u,v,e['weight'],e[res_name]))
             if len(paths.get(v,[])) > 0: logger.debug('      with current paths:')
             for n in range(0,len(paths.get(v,[]))):
                 logger.debug('{} (C {} | R {})'.format(pt.print_path(paths[v][n]),labels[v][n][0],labels[v][n][1]))
@@ -167,7 +172,7 @@ def GLSA(G, S, source, target, max_res, res_min):
             
             # determine whether to create a new label on the child node
             e_loc = np.zeros(n_res+len(S))
-            e_loc[0:n_res] = G[u][v]['res_cost']
+            e_loc[0:n_res] = G[u][v][res_name]
             if v in S:
                 e_loc[n_res+S.index(v)] = 1
             v_label = (labels[u][l][0] +  G[u][v]['weight'], labels[u][l][1] +  e_loc)
@@ -262,7 +267,7 @@ def GLSA(G, S, source, target, max_res, res_min):
             least_cost = best_label[0]
     return best_path, best_label
 
-def GSSA(G, source, target, max_res, res_min):
+def GSSA(G, source, target, max_res, res_min, res_name='res_cost'):
     """General State Space Augmenting Algorithm
     (based on algorithm 2.2, from [1])
     Note: The graph must have been preprocessed so that it is reduced and has the minimal resource information in {res_min}."""
@@ -275,7 +280,7 @@ def GSSA(G, source, target, max_res, res_min):
 
     while not DLA_done:
         # Run dynamic labelling algorithm
-        path, label = GLSA(G, S, source, target, max_res, res_min)
+        path, label = GLSA(G, S, source, target, max_res, res_min, res_name=res_name)
         logger.info('found path {} (C {} | R {})'.format(pt.print_path(path, max_path_len_for_print=len(path)), label[0], label[1]))
         path_elems = pt.count_elems(path)
         path_max_mult = max(path_elems.values())
@@ -307,12 +312,12 @@ def _is_dominated(a, b):
     return label_dominated
 
 def _res_cost_i(u,v,e):
-    """returns weight of certain resource of edge {e} from node {u} to {v}, given by global variable {_resource_treated}.
+    """returns weight of certain resource with index {_resource_nr} of edge {e} from node {u} to {v}, given by variable {_resource_name}.
     It is used by all_pairs_dijkstra_path_length:
         'The weight of an edge is the value returned by the function.
         The function must accept exactly three positional arguments: the two endpoints of an edge and the dictionary of edge attributes for that edge.
         The function must return a number.'"""
     
-    global _resource_treated
+    global _resource_nr, _resource_name
     
-    return e['res_cost'][_resource_treated]
+    return e[_resource_name][_resource_nr]
