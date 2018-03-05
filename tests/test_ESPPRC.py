@@ -29,7 +29,7 @@ pylgrim.tools.decouple_source(G, source, source_in=source_in)
 #target = 4
 target = source_in
 max_res = list([1.0,1.0])
-G_pre, res_min = pylgrim.ESPPRC.preprocess_ESPPRC(G, source, target, max_res)
+G_pre, res_min = pylgrim.ESPPRC.preprocess(G, source, target, max_res)
 path, label = pylgrim.ESPPRC.GSSA(G_pre, source, target, max_res, res_min)
 print('Resulting path:')
 for p in range(0,len(path)):

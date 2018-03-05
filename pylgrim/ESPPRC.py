@@ -23,7 +23,7 @@ _resource_treated = 0
 
 def prune_graph(G, source, target, max_res):
     """prune graph {G}
-    (step 1. of preprocess_ESPPRC)"""
+    (step 1. of preprocess)"""
     
     global _resource_treated
     
@@ -70,7 +70,7 @@ def prune_graph(G, source, target, max_res):
 
 def setup_least_resource_paths_ESPPRC(G):
     """set up least resource paths in graph {G}
-    (step 2. of preprocess_ESPPRC)"""
+    (step 2. of preprocess)"""
     
     global _resource_treated
     
@@ -86,7 +86,7 @@ def setup_least_resource_paths_ESPPRC(G):
     # return preprocessed network and least-resource paths
     return res_min
 
-def preprocess_ESPPRC(G, source, target, max_res):
+def preprocess(G, source, target, max_res):
     """preprocess graph {G}
     (based on algorithm 2.1, step 0, from [1])
        1. Prune the graph, reducing the number of nodes and arcs, by considering least resource paths from the path {source} node to each node in the graph and from each node in the graph to the path {target} node, for each resource subject to a maximum resource in {max_res}.

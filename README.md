@@ -73,5 +73,9 @@ v0.6:
 * Migrated tests back and adapted them.
 * "path_tools" now is renamed to "tools" and contains three new tools: two to decouple the source and back, and one to create a test graph.
 
+v0.7:
+* Changed names of routines.
+* "decouple_source" and "undecouple_source" now give back the number of edges displaced.
+
 ## Copyright
 Copyright 2018 Toon Weyens, Daan van Vugt
