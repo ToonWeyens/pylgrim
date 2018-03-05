@@ -31,7 +31,7 @@ def prune_graph(G, source, target, max_res, res_name='res_cost', atts={'weight',
     
     _resource_name = res_name
     
-    logger.info('Pre-process graph')
+    logger.debug('Pre-process graph')
     
     # to start with, all nodes are assumed to be reachable
     reachable_nodes = set(G.nodes())
@@ -46,20 +46,22 @@ def prune_graph(G, source, target, max_res, res_name='res_cost', atts={'weight',
         logger.debug('Calculate feasible paths from source')
         lengths = set(nx.single_source_dijkstra_path_length(G, source, cutoff=max_res[res], weight=_res_cost_i))
         reachable_nodes = reachable_nodes.intersection(lengths)
-        if source not in reachable_nodes:
-            reachable_nodes.append(source)
+        if target not in reachable_nodes:
+            logger.error('target not reachable')
+            exit()
         
         logger.debug('Calculate feasible paths to target')
         lengths = set(nx.single_source_dijkstra_path_length(G.reverse(copy=True), target, cutoff=max_res[res], weight=_res_cost_i))
         reachable_nodes = reachable_nodes.intersection(lengths)
-        if target not in reachable_nodes:
-            reachable_nodes.append(target)
+        if source not in reachable_nodes:
+            logger.error('source not reachable')
+            exit()
         
     logger.debug('{} reachable nodes:'.format(len(reachable_nodes)))
     logger.debug('      {}'.format(reachable_nodes))
     
     # set up reduced graph
-    logger.info('Set up reduced graph')
+    logger.debug('Set up reduced graph')
     H = nx.DiGraph(n_res=n_res)
     for node in reachable_nodes:
         for node2 in reachable_nodes:
@@ -83,7 +85,7 @@ def setup_least_resource_paths_ESPPRC(G, res_name='res_cost'):
     
     # iterate over all resources and calculate least-resource paths for all pairs
     n_res = G.graph['n_res']
-    logger.info('Calculate least-resource pairs')
+    logger.debug('Calculate least-resource pairs')
     res_min = list()
     for res in range(0,n_res):
         logger.debug('Treating resource {}'.format(res))
@@ -98,7 +100,9 @@ def preprocess(G, source, target, max_res, res_name='res_cost', atts={'weight', 
     (based on algorithm 2.1, step 0, from [1])"""
     
     # 1. prune graph
+    print('G nodes',len(set(G.nodes)))
     H = prune_graph(G, source, target, max_res, res_name=res_name, atts=atts)
+    print('H nodes',len(set(H.nodes)))
     
     # 2. set up least resource paths
     res_min = setup_least_resource_paths_ESPPRC(H, res_name=res_name)
@@ -272,7 +276,7 @@ def GSSA(G, source, target, max_res, res_min, res_name='res_cost'):
     (based on algorithm 2.2, from [1])
     Note: The graph must have been preprocessed so that it is reduced and has the minimal resource information in {res_min}."""
     
-    logger.info('Searching for shortest path {} -> {}'.format(source, target))
+    logger.debug('Searching for shortest path {} -> {}'.format(source, target))
     
     # initialize node resources and not done
     S = list([])
@@ -281,18 +285,18 @@ def GSSA(G, source, target, max_res, res_min, res_name='res_cost'):
     while not DLA_done:
         # Run dynamic labelling algorithm
         path, label = GLSA(G, S, source, target, max_res, res_min, res_name=res_name)
-        logger.info('found path {} (C {} | R {})'.format(pt.print_path(path, max_path_len_for_print=len(path)), label[0], label[1]))
+        logger.debug('found path {} (C {} | R {})'.format(pt.print_path(path, max_path_len_for_print=len(path)), label[0], label[1]))
         path_elems = pt.count_elems(path)
         path_max_mult = max(path_elems.values())
         if path_max_mult == 1:
-            logger.info('it is elementary')
+            logger.debug('it is elementary')
             DLA_done = True
         else:
-            logger.info('but is it not elementary')
+            logger.debug('but is it not elementary')
             node_max_mult = max(path_elems, key=path_elems.get)
             S.append(node_max_mult)
-            logger.info('Incrementing node {}, which had multiplicity {}:'.format(node_max_mult, path_max_mult))
-            logger.info('S = {}'.format(S))
+            logger.debug('Incrementing node {}, which had multiplicity {}:'.format(node_max_mult, path_max_mult))
+            logger.debug('S = {}'.format(S))
         #input('PAUSED')
     
     return path, label

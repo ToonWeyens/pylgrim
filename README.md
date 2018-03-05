@@ -43,39 +43,6 @@ from pylgrim import ESPP
 TODO
 
 
-## Changelog
-
-V0.1:
-* Changed K to dictionary to be compatible with general grids that might have non-integer node labels.
-
-V0.2:
-* Put ESSP in separate module.
-
-v0.3:
-* Improved output of results.
-* Added possible flag "output_pos" to also output positive paths.
-* Added option to trim paths when more than K are found. This is off by default. It can be turned on when the graphs are getting too large.
-* Added restore of nodes to G at end of ESPP.
-* Added option to retry paths in ESPP.
-* Implemented pre-processing of ESPPRC.
-* Started with rest of ESPPRC.
-
-v0.4:
-* Implemented ESPPRC.
-* Many bugfixes.
-* Updated test_ESPPRC.
-
-v0.5:
-* Migrated ESPP ESPPRC to Pylgrim and tests elsewhere.
-
-v0.6:
-* Logging is much better now.
-* Migrated tests back and adapted them.
-* "path_tools" now is renamed to "tools" and contains three new tools: two to decouple the source and back, and one to create a test graph.
-
-v0.7:
-* Changed names of routines.
-* "decouple_source" and "undecouple_source" now give back the number of edges displaced.
 
 ## Copyright
 Copyright 2018 Toon Weyens, Daan van Vugt
