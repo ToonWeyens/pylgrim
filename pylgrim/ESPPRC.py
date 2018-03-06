@@ -34,8 +34,8 @@ def prune_graph(G, source, target, max_res, res_name='res_cost', attrs={'weight'
     logger.debug('Pre-process graph')
     
     # to start with, all nodes are assumed to be reachable
-    reachable_nodes = set(G.nodes())
     n_res = G.graph['n_res']
+    reachable_nodes = set(G.nodes())
     
     # iterate over all resources and delete nodes that are not reachable
     logger.debug('Delete unreachable nodes')
@@ -43,20 +43,29 @@ def prune_graph(G, source, target, max_res, res_name='res_cost', attrs={'weight'
         logger.debug('Treating resource {}'.format(res))
         _resource_nr = res
         
-        logger.debug('Calculate feasible paths from source')
-        lengths = set(nx.single_source_dijkstra_path_length(G, source, cutoff=max_res[res], weight=_res_cost_i))
-        reachable_nodes = reachable_nodes.intersection(lengths)
-        if target not in reachable_nodes:
-            logger.error('target not reachable')
+        logger.debug('Calculate feasible paths from source for resource {}'.format(res))
+        lengths_source = dict(nx.single_source_dijkstra_path_length(G, source, cutoff=max_res[res], weight=_res_cost_i))
+        if target not in lengths_source:
+            logger.error('target not reachable for resource {}'.format(res))
             exit()
         
-        logger.debug('Calculate feasible paths to target')
-        lengths = set(nx.single_source_dijkstra_path_length(G.reverse(copy=True), target, cutoff=max_res[res], weight=_res_cost_i))
-        reachable_nodes = reachable_nodes.intersection(lengths)
-        if source not in reachable_nodes:
-            logger.error('source not reachable')
+        logger.debug('Calculate feasible paths to target for resource {}'.format(res))
+        lengths_target = dict(nx.single_source_dijkstra_path_length(G.reverse(copy=True), target, cutoff=max_res[res], weight=_res_cost_i))
+        if source not in lengths_target:
+            logger.error('source not reachable for resource {}'.format(res))
             exit()
         
+        nodes_to_remove = set()
+        for node in reachable_nodes:
+            if node not in lengths_source or node not in lengths_target:
+                nodes_to_remove.add(node)
+            elif lengths_source[node] + lengths_target[node] > max_res[res]:
+                nodes_to_remove.add(node)
+        
+        logger.debug('Remove {} nodes due to violation of resource'.format(len(nodes_to_remove),res))
+        for node in nodes_to_remove:
+            reachable_nodes.remove(node)
+    
     logger.debug('{} reachable nodes:'.format(len(reachable_nodes)))
     logger.debug('      {}'.format(reachable_nodes))
     
@@ -69,7 +78,8 @@ def prune_graph(G, source, target, max_res, res_name='res_cost', attrs={'weight'
                 H.add_edge(node, node2)
                 for att in attrs:
                     H[node][node2][att] = G.get_edge_data(node,node2)[att]
-    nx.draw_circular(H,with_labels=True)
+    #nx.draw_circular(H,with_labels=True)
+    #plt.show()
     
     # return pruned graph
     return H
