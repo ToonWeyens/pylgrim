@@ -24,7 +24,13 @@ pylgrim.tools.decouple_source(G, source, source_in=source_in)
 
 # solve for min_K number of paths
 min_K = 2
-pylgrim.ESPP.DLA(G, source, min_K, remove_excess_paths = True, max_path_len = 6)
+paths, costs = pylgrim.ESPP.DLA(G, source, min_K, remove_excess_paths = True, max_path_len = 6)
+
+print('solution paths:')
+for node in paths:
+    print('    ending in node {}:'.format(node))
+    for path in paths[node]:
+        print('        '+str(path))
 
 # move source in-edges back from new node
 pylgrim.tools.undecouple_source(G, source, source_in=source_in)

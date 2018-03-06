@@ -37,6 +37,7 @@ def create_test_graph(G, add_nodes_to_0=False):
         G.add_edge(6, 0, weight=-1, res_cost=np.array([0.1,0.2]))
         G.add_edge(1, 0, weight=-2, res_cost=np.array([0.1,0.2]))
 
+
 def decouple_source(G, source, source_in="source_in"):
     """Decouple the source {source} of a graph {G}, by duplicating the node, called {source_in} and moving all the in-edges to it.
     Returns the number of edges displaced."""
@@ -54,6 +55,7 @@ def decouple_source(G, source, source_in="source_in"):
             G.remove_edge(*e)
 
     return n_in_edges_source
+
 
 def undecouple_source(G, source, source_in="source_in"):
     """Invert the decoupling of the source {source} of a graph {G} done in decouple_source by moving all the edges to {source_in} back to {source}.
@@ -74,6 +76,7 @@ def undecouple_source(G, source, source_in="source_in"):
 
     return n_in_edges_source
 
+
 def print_path(path, max_path_len_for_print = None):
     """Pretty-print a path given as an iterable of strings.
     Optionally trim if longer than max_path_len_for_print
@@ -89,6 +92,7 @@ def print_path(path, max_path_len_for_print = None):
         for p in range(1,len(path)):
             path_short += ' ⇨ ' + str(path[p])
     return path_short
+
 
 def count_elems(path):
     """Count elements in a path and return a dictionary keyed with label"""

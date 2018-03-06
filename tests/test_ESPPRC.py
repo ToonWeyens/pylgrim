@@ -30,15 +30,19 @@ pylgrim.tools.decouple_source(G, source, source_in=source_in)
 target = source_in
 max_res = list([1.0,1.0])
 G_pre, res_min = pylgrim.ESPPRC.preprocess(G, source, target, max_res, res_name=res_name)
-path, label = pylgrim.ESPPRC.GSSA(G_pre, source, target, max_res, res_min, res_name=res_name)
-#print('Resulting path:')
-#for p in range(0,len(path)):
-    #print('  ',path[p])
-    #if p < len(path)-1:
-        #print("      ⇩")
-#print('')
-#print('with cost 10^-({}) = {}'.format(label[0],10**(-label[0])))
-#print('')
+shortest_path, shortest_path_label = pylgrim.ESPPRC.GSSA(G_pre, source, target, max_res, res_min, res_name=res_name)
+
+print('shortest path found: {} with label {}'.format(shortest_path, shortest_path_label))
+print('')
+
+while True:
+    try:
+        e = shortest_path.__next__()
+        print('{} ⇨ {} : {}'.format(*e))
+        print('')
+    except StopIteration:
+        # last element reached
+        break
 
 # move source in-edges back from new node
 pylgrim.tools.undecouple_source(G, source, source_in=source_in)

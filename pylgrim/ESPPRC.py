@@ -14,6 +14,7 @@ import networkx as nx
 import numpy as np
 import logging
 from . import tools as pt
+from . import path as pth
 
 #logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -307,7 +308,7 @@ def GSSA(G, source, target, max_res, res_min, res_name='res_cost'):
             logger.debug('S = {}'.format(S))
         #input('PAUSED')
     
-    return G.subgraph(path), label
+    return pth.Path(G,path), label
 
 def _is_dominated(a, b):
     """returns whether a label {a} is dominated by another label {b}"""

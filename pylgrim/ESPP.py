@@ -14,6 +14,7 @@ from collections import deque, OrderedDict
 import networkx as nx
 import logging
 from . import tools as pt
+from . import path as pth
 
 #logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -251,4 +252,9 @@ def DLA(G, source, min_K=1, output_pos = False, remove_excess_paths = False, max
             #print('')
     
     # return
-    return paths, costs
+    rpaths = dict()
+    for node in paths:
+        rpaths[node] = list()
+        for path in paths[node]:
+            rpaths[node].append(pth.Path(G, path))
+    return rpaths, costs
