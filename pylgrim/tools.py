@@ -37,9 +37,9 @@ def create_test_graph(G, add_nodes_to_0=False):
         G.add_edge(6, 0, weight=-1, res_cost=np.array([0.1,0.2]))
         G.add_edge(1, 0, weight=-2, res_cost=np.array([0.1,0.2]))
 
-def decouple_source(G, source, source_in="source_in", atts={'weight'}):
+def decouple_source(G, source, source_in="source_in", attrs={'weight'}):
     """Decouple the source {source} of a graph {G}, by duplicating the node, called {source_in} and moving all the in-edges to it.
-    Attributes described in {atts} are also copied.
+    Attributes described in {attrs} are also copied.
     Returns the number of edges displaced."""
     
     in_edges_source = tuple(G.in_edges(source))
@@ -50,15 +50,15 @@ def decouple_source(G, source, source_in="source_in", atts={'weight'}):
         for e in in_edges_source:
             logger.debug('  move edge {}'.format(e))
             G.add_edge(e[0],source_in)
-            for att in atts:
-                G[e[0]][source_in][att] = G.get_edge_data(*e)[att]
+            for attr in attrs:
+                G[e[0]][source_in][attr] = G.get_edge_data(*e)[attr]
             G.remove_edge(*e)
 
     return n_in_edges_source
 
-def undecouple_source(G, source, source_in="source_in", atts={'weight'}):
+def undecouple_source(G, source, source_in="source_in", attrs={'weight'}):
     """Invert the decoupling of the source {source} of a graph {G} done in decouple_source by moving all the edges to {source_in} back to {source}.
-    Attributes described in {atts} are also copied back.
+    Attributes described in {attrs} are also copied back.
     Returns the number of edges displaced."""
     
     in_edges_source = tuple(G.in_edges(source_in))
@@ -69,8 +69,8 @@ def undecouple_source(G, source, source_in="source_in", atts={'weight'}):
         for e in in_edges_source:
             logger.debug('  move edge {}'.format(e))
             G.add_edge(e[0],source)
-            for att in atts:
-                G[e[0]][source][att] = G.get_edge_data(e[0],source_in)[att]
+            for attr in attrs:
+                G[e[0]][source][attr] = G.get_edge_data(e[0],source_in)[attr]
             G.remove_edge(e[0],source_in)
         G.remove_node(source_in)
 

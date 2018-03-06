@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 _resource_nr = 0
 _resource_name = 'res_cost'
 
-def prune_graph(G, source, target, max_res, res_name='res_cost', atts={'weight', 'res_cost'}):
+def prune_graph(G, source, target, max_res, res_name='res_cost', attrs={'weight', 'res_cost'}):
     """first step of graph {G} preprocessing
     (based on algorithm 2.1, step 0, from [1])
     Prune the graph, reducing the number of nodes and arcs, by considering least resource paths from the path {source} node to each node in the graph and from each node in the graph to the path {target} node, for each resource subject to a maximum resource in {max_res}."""
@@ -67,7 +67,7 @@ def prune_graph(G, source, target, max_res, res_name='res_cost', atts={'weight',
         for node2 in reachable_nodes:
             if G.has_edge(node, node2) and not H.has_edge(node,node2): 
                 H.add_edge(node, node2)
-                for att in atts:
+                for att in attrs:
                     H[node][node2][att] = G.get_edge_data(node,node2)[att]
     nx.draw_circular(H,with_labels=True)
     
@@ -95,14 +95,12 @@ def setup_least_resource_paths_ESPPRC(G, res_name='res_cost'):
     # return preprocessed network and least-resource paths
     return res_min
 
-def preprocess(G, source, target, max_res, res_name='res_cost', atts={'weight', 'res_cost'}):
+def preprocess(G, source, target, max_res, res_name='res_cost', attrs={'weight', 'res_cost'}):
     """preprocess graph {G}
     (based on algorithm 2.1, step 0, from [1])"""
     
     # 1. prune graph
-    print('G nodes',len(set(G.nodes)))
-    H = prune_graph(G, source, target, max_res, res_name=res_name, atts=atts)
-    print('H nodes',len(set(H.nodes)))
+    H = prune_graph(G, source, target, max_res, res_name=res_name, attrs=attrs)
     
     # 2. set up least resource paths
     res_min = setup_least_resource_paths_ESPPRC(H, res_name=res_name)
