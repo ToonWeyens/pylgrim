@@ -1,8 +1,5 @@
 # test using ESSP.
 # Note: The results can be different compared to test_ESSPRC because here resources are not taken into account.
-import sqlite3
-import pandas as pd
-import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 import pylgrim
