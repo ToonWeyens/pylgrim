@@ -4,13 +4,14 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import pylgrim
 import logging
+import tools as testtools
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # create test graph
 G = nx.DiGraph(n_res=2)
-pylgrim.tools.create_test_graph(G,add_nodes_to_0=True)
+testtools.create_test_graph(G,add_nodes_to_0=True)
 source = 0
 print('Testing with {} nodes'.format(len(G)))
 print('')
