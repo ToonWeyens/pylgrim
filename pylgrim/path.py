@@ -37,6 +37,30 @@ class Path(nx.DiGraph):
                 break
         return path_str
     
+    def __repr__(self):
+        """identical to __str__ without the arrow."""
+        path_str = str(self.source)
+        node = self.source
+        while True:
+            try:
+                node = list(self.succ[node])[0]
+                path_str += ' ' + str(node)
+            except IndexError:
+                # last element reached
+                break
+            except KeyError:
+                # first element had no successors
+                break
+        return path_str
+    
+    def __eq__(x,y):
+        """Path considers only differences of the nodes variable."""
+        return repr(x) == repr(y)
+    
+    def __hash__(self):
+        """Path considers only differences of the nodes variable."""
+        return hash(repr(self))
+    
     def __iter__(self):
         # reset the counter to source when iterator is created
         self.curr_node = self.source

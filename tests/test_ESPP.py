@@ -31,7 +31,7 @@ print('solution paths:')
 for node in paths:
     print('    ending in node {}:'.format(node))
     for path in paths[node]:
-        print('        '+str(path))
+        print('        '+str(path)+' with cost '+str(costs[node][paths[node].index(path)]))
 
 # move source in-edges back from new node
 pylgrim.tools.undecouple_source(G, source, source_in=source_in)
