@@ -38,6 +38,8 @@ class Path(nx.DiGraph):
         return path_str
     
     def __iter__(self):
+        # reset the counter to source when iterator is created
+        self.curr_node = self.source
         return self
 
     def __next__(self):
