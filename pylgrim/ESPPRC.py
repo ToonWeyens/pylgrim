@@ -151,7 +151,6 @@ def GLSA(G, S, source, target, max_res, res_min, res_name='res_cost'):
             LML_for_this_res = []
             for label in LML_for_prev_res:
                 res_loc = labels[label[0]][label[1]][1][res]
-                logger.debug('Consumption of resource {}: {}'.format(res,res_loc))
                 if res_loc <= res_LML:
                     # better or equivalent label
                     res_LML = res_loc
