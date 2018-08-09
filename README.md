@@ -20,10 +20,6 @@ Also, when a path is added, the other possible paths that are dominated by it, a
 On the other hand, *strong dominance* is a mathematical trick that is used to speed up convergence to the shortest path, by artificially incrementing possible node resources of nodes that cannot be reached [2].
 The resulting algorithm seeks the ESPPRC for **single source to single destination** problems.
 
-## References
-   [1]: "On the shortest path problem with negative cost cycles" by Di Puglia Pugliese, Luigi (DOI: 10.1007/s10589-015-9773-1)
-   [2]: "Accelerated label setting algorithms for the elementary resource constrained shortest path problem" by Boland, Natashia (DOI: 10.1016/j.orl.2004.11.011)
-
 
 ## Installation
 * Clone this repository
@@ -58,7 +54,7 @@ Furthermore,
 ```python
 from pylgrim import tools
 ```
-should be used to *decouple* the directed graph to make sure that the source node from which to calculate elementary shortest paths is certain not to have any in-edges, as this is not allowed by the algorithm:
+should be used to *decouple* the directed graph to make sure that the source node from which to calculate elementary shortest paths is certain not to have any in-edges, as this is not allowed by the algorithms:
 ```python
 tools.decouple_source(G, source, source_in='source_in')
 ```
@@ -94,6 +90,9 @@ where `G` si the directed graph for which to find the shortest path from the `so
 Optionally, through `min_K` the minimum number of paths to be returned for every node can be changed, with `output_pos` also positive costs can be returned and through `max_path_len`, the maximum length of a path can be limited, so that the problem becomes easier to solve.
 
 `DLA` outputs in `paths` a dictionary where the keys are the target nodes and for every one of these, a list is returned with the best paths of type `Path`, ordered by lowest cost, of length at least `min_K`. The cost itself is returned in a matching dictionary `costs`.
+
+Note, however, that ESPP should no be used for graphs other than very small ones.
+The following algorithm should be much faster.
 
 ### Elementary shortest path with resource constraints
 Elementary shortest path with resource constraints can be used by first importing the module through

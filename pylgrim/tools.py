@@ -37,10 +37,9 @@ def undecouple_source(G, source, source_in="source_in"):
     in_edges_source = tuple(G.in_edges(source_in))
     n_in_edges_source = len(in_edges_source)
     if n_in_edges_source > 0:
-        logger.debug('place back {} in-edges  {}'.format(n_in_edges_source,source))
+        logger.debug('place back {} in-edges {} - {}'.format(n_in_edges_source,source, in_edges_source))
         
         for e in in_edges_source:
-            logger.debug('  move edge {}'.format(e))
             G.add_edge(e[0],source)
             for attr in G[e[0]][e[1]]:
                 G[e[0]][source][attr] = G[e[0]][e[1]][attr]
