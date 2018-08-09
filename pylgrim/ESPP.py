@@ -5,6 +5,17 @@
 #   * no resources
 #   * elementary paths are sought by requesting more and more paths for nodes which have been found to form part of a NCC (negative cost cycle), when there is no alternative.
 #
+# Note: The strategy in [1] is intrinsically flawed. Consider the following situation:
+#   * Node 2 has a path 0->1->2.
+#   * Node 3 has a path 0->3.
+#   * A path from node 3 can be extended to node 2, say 0->3->2.
+#   * If this path has lower cost than path 2, it replaces it.
+#   * To find a path to node 3, now, by extending node 2, the only possible option is 0->3, in order not to have cycles.
+#   * However, it is perfectly possible that 0->1->2->3 is better than 0->3, but 0->1->2 was thrown away.
+#
+# The solution to this problem is to keep more paths. The algorithm, however, then becomes very slow.
+# It is therefore no advised to be used for anything but very small graphs.
+#
 # Author:
 #   Toon Weyens
 #
@@ -19,7 +30,7 @@ from . import path as pth
 #logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_paths = False):
+def TLAdynK(G, source, K, max_path_len = -1, retry_paths = False):
     """Truncated labelling algorithm for dynamic kSPP
     (based on algorithm 3 from [1])"""
     
@@ -123,7 +134,7 @@ def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_
                 
                 # Loop over all paths of u.
                 # Note that the lower boundary is possibly given by the first elementary path,
-                # found in the check for NCC. The upper boundaryr is not taken to be equal to
+                # found in the check for NCC. The upper boundary is not taken to be equal to
                 # K[u], but instead to the number of paths to that have been set up. Each of
                 # these can potentially give a lower result.
                 for ku in range(first_elem_path,len(paths[u])):
@@ -134,9 +145,11 @@ def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_
                     logger.debug('      from node {} trying to extend path {}: {} -> {}'.format(u,ku,pt.print_path(paths[u][ku],max_path_len_for_print=3),v))
                     
                     # Loop over all paths of v.
-                    # Note that the ranges here are simply 0 to K[v] as more paths to v are
-                    # not sought.
-                    for kv in range(0,K[v]):
+                    # Note that even though only K[v] paths are sought ultimately, it can very well
+                    # be that a number of these paths are eliminated when extending it further to other
+                    # nodes, so that paths that are more costly to the current node could be needed
+                    # for the extensions.
+                    for kv in range(0,max(K[v],len(paths[v]))):
                         # sets up possible new path, as well as costs
                         path_v = list(paths[u][ku])
                         path_v.append(v)
@@ -173,11 +186,6 @@ def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_
                             costs[v].insert(kv,cost_ku + e['weight'])
                             paths[v].insert(kv,path_v)
                             
-                            # if requested, possibly trim paths and costs
-                            if remove_excess_paths:
-                                del paths[-1]
-                                del costs[-1]
-                            
                             # possibly add node v to L
                             if not (v in L):
                                 logger.debug('          add node {} to set L'.format(v))
@@ -190,7 +198,7 @@ def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_
                             logger.debug('          this path was not inserted')
             
             logger.debug('    resulting paths to {}:'.format(v))
-            for n in range(0,min(len(paths[v]),K[v])):
+            for n in range(0,len(paths[v])):
                 logger.debug('      {}({})'.format(pt.print_path(paths[v][n]),costs[v][n]))
             logger.debug('')
         logger.debug('  {} elements in queue'.format(len(L)))
@@ -203,7 +211,7 @@ def TLAdynK(G, source, K, remove_excess_paths = False, max_path_len = -1, retry_
     return paths, costs, []
 
 
-def DLA(G, source, min_K=1, output_pos = False, remove_excess_paths = False, max_path_len = -1):
+def DLA(G, source, min_K=1, output_pos = False, max_path_len=-1):
     """Dynamic labelling algorithm
     (based on algorithm 4 from [1])"""
     
@@ -217,7 +225,7 @@ def DLA(G, source, min_K=1, output_pos = False, remove_excess_paths = False, max
 
     while not DLA_done:
         # Run truncated labelling algorithm for dynamic kSPP
-        paths, costs, NCCs = TLAdynK(G, source, K)
+        paths, costs, NCCs = TLAdynK(G, source, K, max_path_len)
         
         # output for tests
         logger.info('')

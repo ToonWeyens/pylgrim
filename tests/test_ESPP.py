@@ -1,4 +1,4 @@
-# test using ESSP.
+# test using ESSP on a simple test graph.
 # Note: The results can be different compared to test_ESSPRC because here resources are not taken into account.
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -6,12 +6,13 @@ import pylgrim
 import logging
 import tools as testtools
 
-logging.basicConfig(level=logging.DEBUG)
+# possible values are: WARNING, INFO, DEBUG, ...
+# (see https://docs.python.org/3/library/logging.html#logging-levels)
+logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
 # create test graph
-G = nx.DiGraph(n_res=2)
-testtools.create_test_graph(G,add_nodes_to_0=True)
+G = testtools.create_test_graph(add_nodes_to_0=True)
 source = 0
 print('Testing with {} nodes'.format(len(G)))
 print('')
@@ -20,21 +21,18 @@ print('')
 source_in = 'source_in'
 pylgrim.tools.decouple_source(G, source, source_in=source_in)
 
-#nx.draw_circular(G,with_labels=True)
-#plt.show()
-
 # solve for min_K number of paths
 min_K = 2
-paths, costs = pylgrim.ESPP.DLA(G, source, min_K, remove_excess_paths = True, max_path_len = 6)
+paths, costs = pylgrim.ESPP.DLA(G, source, min_K, max_path_len = 6)
 
 print('solution paths:')
 for node in paths:
     print('    ending in node {}:'.format(node))
     for path in paths[node]:
         print('        '+str(path)+' with cost '+str(costs[node][paths[node].index(path)]))
+        
+        # visualize
+        testtools.visualize_path(G, path)
 
 # move source in-edges back from new node
 pylgrim.tools.undecouple_source(G, source, source_in=source_in)
-
-#nx.draw_circular(G,with_labels=True)
-#plt.show()
