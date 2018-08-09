@@ -1,18 +1,23 @@
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup, find_packages
+
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 setup(
-  name = 'pylgrim',
-  packages = ['pylgrim'], # this must be the same as the name above
-  version = '0.1',
-  description = 'Elementary shortest path problems (with resource constraints)',
-  author = 'Toon Weyens',
-  author_email = 'weyenst@gmail.com',
-  url = 'https://github.com/exteris/pylgrim', # use the URL to the github repo
-  download_url = 'https://github.com/exteris/pylgrim/archive/0.1.tar.gz', # I'll explain this in a second
-  keywords = ['espp', 'espprc', 'shortest-path', 'graph', 'python'], # arbitrary keywords
-  install_requires = [],
-  requires = ['networkx'],
-  classifiers = [],
+    name="pylgrim",
+    version="1.0.1",
+    author="Toon Weyens",
+    author_email="weyenst@gmail.com",
+    description="Elementary shortest path problems, with or without resource constraints",
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    url="https://github.com/ToonWeyens/pylgrim",
+    packages=find_packages(),
+    keywords = ['espp', 'espprc', 'shortest-path', 'graph', 'python'], # arbitrary keywords
+    requires = ['networkx', 'logging', 'numpy', 'copy', 'collections', 'matplotlib', 'random', 'timeit'],
+    classifiers=(
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "Operating System :: OS Independent",
+    ),
 )

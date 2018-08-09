@@ -22,8 +22,10 @@ The resulting algorithm seeks the ESPPRC for **single source to single destinati
 
 
 ## Installation
-* Clone this repository
-* `pip install -e pylgrim`
+* `pip install pylgrim`
+* or alternatively
+    * Clone this repository
+    * `pip install -e pylgrim`
 
 ### Dependencies
 * numpy
