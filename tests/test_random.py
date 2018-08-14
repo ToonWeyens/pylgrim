@@ -50,9 +50,8 @@ print('source = {}, target = {}'.format(source, target))
 print('maximum length of path: {}'.format(max_path_len))
 print('')
 
-# create test graph: inverted gnc_graph
+# create test graph: inverted gnc_graph or gnp random graph
 #G = nx.generators.gnc_graph(graph_size).reverse(copy=False)
-
 G = nx.gnp_random_graph(graph_size, p=0.2, directed=True, seed=seed)
 
 # add one resource to limit path length and one for weight

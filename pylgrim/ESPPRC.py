@@ -143,28 +143,35 @@ def GLSA(G, S, source, target, max_res, res_min, res_name='res_cost'):
     # 2. select lexicographically minimal label
     logger.debug('Loop over labels to be extended')
     while L:
-        # select lexicographically minimal label
+        # select lexicographically minimal label:
+        #   l1 < l2 if there is a r' ∈ {1...R'}, w1 = w2 for all r = 1...r' but l1^r' < l2^r'
+        # i.e. 1 2 0 < 1 3 0
+        #      0 1 0 < 1 5 8
+        #      etc.
         logger.debug('Select lexicographically minimal label:')
-        LML_for_prev_res= L
+        LML_for_prev_res = L
         for res in range(0,n_res+len(S)):
-            res_LML = inf
             LML_for_this_res = []
+            res_LML = inf
             for label in LML_for_prev_res:
                 res_loc = labels[label[0]][label[1]][1][res]
                 if res_loc <= res_LML:
-                    # better or equivalent label
-                    res_LML = res_loc
                     LML_for_this_res.append(label)
-            # set u_label to first element found
-            u_label = LML_for_this_res[0]
-            u = u_label[0]
-            l = u_label[1]
-            if len(LML_for_this_res) == 1:
-                # found lexicographically minimal label
-                break
-            else:
-                # multiple labels equivalent for this res
+            if len(LML_for_this_res) == 0:
+                logger.error('Could not find labels to select')
+                exit()
+            elif len(LML_for_this_res) > 1:
+                # go to next level with restricted set
+                logger.debug('Go to next level with restricted set {}'.format(LML_for_this_res))
                 LML_for_prev_res = LML_for_this_res
+            else:
+                # done
+                break
+        u_label = LML_for_this_res[0]
+        u = u_label[0]
+        l = u_label[1]
+        logger.debug('found lexically minimal label {}'.format(u_label))
+        
         L.remove(u_label)
         
         logger.debug('{}th label of node {} chosen:'.format(l,u))
