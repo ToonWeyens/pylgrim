@@ -236,7 +236,7 @@ def GLSA(G, S, source, target, max_res, res_min, res_name='res_cost'):
                     # be feasibly visited with edge resources
                     for n in S:
                         for res in range(0,n_res):
-                            if v_label[1][res] + res_min[res][n].get(n,0.0) > max_res[res]:
+                            if v_label[1][res] + res_min[res][v].get(n,0.0) + res_min[res][n].get(target,0.0) > max_res[res]:
                                 if v_label[1][n_res+S.index(n)] == 0:
                                     logger.debug('set strong dominance for node resource {}'.format(S.index(n)))
                                     v_label[1][n_res+S.index(n)] = 1
