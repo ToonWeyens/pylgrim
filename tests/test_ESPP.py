@@ -1,5 +1,5 @@
-# test using ESSP on a simple test graph.
-# Note: The results can be different compared to test_ESSPRC because here resources are not taken into account.
+# test using ESPP on a simple test graph.
+# Note: The results can be different compared to test_ESPPRC because here resources are not taken into account.
 import networkx as nx
 import matplotlib.pyplot as plt
 import pylgrim

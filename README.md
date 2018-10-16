@@ -110,7 +110,7 @@ where `G` is the directed graph for which to find the shortest path between `sou
 
 Note, furthermore, the graph `G` must have been preprocessed first so that it is reduced and has the minimal resource information that is to be passed into `res_min`
 ```python
-G_pre, res_min = ESSPRC.preprocess(G, source, target, max_res, res_name='res_cost')
+G, res_min = ESPPRC.preprocess(G_no_preprocess, source, target, max_res, res_name='res_cost')
 ```
 
 Finally, in these functions, `res_name` can be used to specify the name of the resource that is to be used internally for the edges in the graph.

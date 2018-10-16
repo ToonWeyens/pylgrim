@@ -1,7 +1,6 @@
-# test using ESSPRC on the simple test graph.
-# Note: The results can be different compared to test_ESSP because here resources are taken into account.
+# test using ESPPRC on the simple test graph.
+# Note: The results can be different compared to test_ESPP because here resources are taken into account.
 import networkx as nx
-import matplotlib.pyplot as plt
 import pylgrim
 import logging
 import tools as testtools
@@ -38,7 +37,7 @@ else:
     n_runs = 1
 
 for _ in range(n_runs):
-    # solve using ESSPRC
+    # solve using ESPPRC
     #target = 4
     target = source_in
     max_res = list([1.0,1.0])

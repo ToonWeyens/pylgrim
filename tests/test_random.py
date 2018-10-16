@@ -1,5 +1,5 @@
-# test using ESSPRC on a random graph.
-# Note: The results can be different compared to test_ESSP because here resources are taken into account.
+# test using EPSPRC on a random graph.
+# Note: The results can be different compared to test_ESPP because here resources are taken into account.
 import networkx as nx
 import matplotlib.pyplot as plt
 import logging

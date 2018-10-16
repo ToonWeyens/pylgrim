@@ -13,6 +13,8 @@
 import networkx as nx
 import numpy as np
 import logging
+import matplotlib.pyplot as plt
+from sys import exit
 from . import tools as pt
 from . import path as pth
 
