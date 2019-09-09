@@ -19,7 +19,10 @@ setup(
     url="https://github.com/ToonWeyens/pylgrim",
     packages=find_packages(),
     keywords = ['espp', 'espprc', 'shortest-path', 'graph', 'python'], # arbitrary keywords
-    install_requires = ['networkx', 'logging', 'numpy', 'copy', 'collections', 'matplotlib', 'random', 'timeit'],
+    install_requires = ['networkx',
+        'logging',
+        'numpy',
+        'matplotlib<3.3'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",

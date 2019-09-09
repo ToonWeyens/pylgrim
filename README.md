@@ -32,7 +32,6 @@ The resulting algorithm seeks the ESPPRC for **single source to single destinati
 * networkx
 * logging
 * copy
-* collections
 * matplotlib (for testing)
 * random (for testing)
 * timeit (for testing)

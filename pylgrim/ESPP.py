@@ -219,7 +219,7 @@ def DLA(G, source, min_K=1, output_pos = False, max_path_len=-1):
     
     # initialize K label to minimal value and not done
     K = {}
-    for n in G.nodes:
+    for n in G.nodes():
         K[n] = min_K
     DLA_done = False
 
