@@ -20,7 +20,6 @@ setup(
     packages=find_packages(),
     keywords = ['espp', 'espprc', 'shortest-path', 'graph', 'python'], # arbitrary keywords
     install_requires = ['networkx',
-        'logging',
         'numpy',
         'matplotlib<3.3'],
     classifiers=[
