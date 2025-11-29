@@ -7,11 +7,15 @@
 #   Toon Weyens
 
 import networkx as nx
-from copy import deepcopy
 
 class Path(nx.DiGraph):
     """Result path with source copied from graph G"""
-    
+    def __new__(cls, *args, **kwargs):
+        # We catch 'G' and 'nodes' in *args, but we don't pass them up.
+        # We just ask the parent (DiGraph) to make a blank object.
+        # In __init__ we will fill it.
+        return super().__new__(cls)
+
     def __init__(self, G, nodes):
         super(Path, self).__init__(n_res=G.graph['n_res'])
         self.source = nodes[0]

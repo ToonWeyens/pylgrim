@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pylgrim"
+dynamic = ["version"] # <--- This tells uv "Go look for the version in the code"
+description = "Elementary shortest path problems, with or without resource constraints"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+  { name = "Toon Weyens", email = "toon.weyens@gmail.com" },
+  { name = "Daan Van Vugt", email = "dvanvugt@ignitioncomputing.com" },
+]
+keywords = ["espp", "espprc", "shortest-path", "graph", "python"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "matplotlib>=3.10.7",
+    "networkx>=3.6",
+    "numpy>=2.3.5",
+]
+
+[project.urls]
+Homepage = "https://github.com/ToonWeyens/pylgrim"
+
+# This configures Hatch to find the version in your __init__.py file
+# just like your old setup.py did.
+[tool.hatch.version]
+path = "pylgrim/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pylgrim"]
+
+[dependency-groups]
+dev = [
+    "deptry>=0.24.0",
+    "pytest>=9.0.1",
+    "ruff>=0.14.7",
+]

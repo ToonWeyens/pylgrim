@@ -22,7 +22,6 @@
 # References: 
 #   [1]: "On the shortest path problem with negative cost cycles" by Di Puglia Pugliese, Luigi (DOI: 10.1007/s10589-015-9773-1)
 from collections import deque, OrderedDict
-import networkx as nx
 import logging
 from . import tools as pt
 from . import path as pth
@@ -91,7 +90,7 @@ def TLAdynK(G, source, K, max_path_len = -1, retry_paths = False):
                 NCCs = []
                 logger.debug('      testing because test 0 was not negative')
                 for ku in range(0,len(costs.get(u,[]))):
-                    if not (v in paths[u][ku]):
+                    if v not in paths[u][ku]:
                         logger.debug('        {} not in {}'.format(v,pt.print_path(paths[u][ku])))
                         logger.debug('          -> at least one elementary path {}'.format(ku))
                         NCC_conds[1] = False
@@ -103,7 +102,7 @@ def TLAdynK(G, source, K, max_path_len = -1, retry_paths = False):
                         if (costs[u][ku] + e['weight'] < costs.get(v,[inf])[0]):
                             NCC_conds[2] = True
                             for n in paths[u][ku]:
-                                if not (n in NCCs):
+                                if n not in NCCs:
                                     NCCs.append(n)
             
             # check for all tests
@@ -112,7 +111,7 @@ def TLAdynK(G, source, K, max_path_len = -1, retry_paths = False):
                     logger.debug('      putting node {} back in the queue to retry later'.format(u))
                     
                     # put it back in queue if this is the first
-                    if L_first_retry == None:
+                    if L_first_retry is None:
                         L_first_retry = u
                     L.add(u)
                     L_q.append(u)
@@ -128,7 +127,7 @@ def TLAdynK(G, source, K, max_path_len = -1, retry_paths = False):
                     
             else:
                 # initialize path with cost for v if not yet done
-                if (costs.get(v) == None):
+                if (costs.get(v) is None):
                     costs[v] = list()
                     paths[v] = list()
                 
@@ -187,7 +186,7 @@ def TLAdynK(G, source, K, max_path_len = -1, retry_paths = False):
                             paths[v].insert(kv,path_v)
                             
                             # possibly add node v to L
-                            if not (v in L):
+                            if v not in L:
                                 logger.debug('          add node {} to set L'.format(v))
                                 L.add(v)
                                 L_q.append(v)

@@ -13,7 +13,6 @@
 import networkx as nx
 import numpy as np
 import logging
-import matplotlib.pyplot as plt
 from sys import exit
 from . import tools as pt
 from . import path as pth
@@ -65,7 +64,7 @@ def prune_graph(G, source, target, max_res, res_name='res_cost'):
             elif lengths_source[node] + lengths_target[node] > max_res[res]:
                 nodes_to_remove.add(node)
         
-        logger.debug('Remove {} nodes due to violation of resource'.format(len(nodes_to_remove),res))
+        logger.debug('Remove {} nodes due to violation of resource'.format(len(nodes_to_remove),))
         for node in nodes_to_remove:
             reachable_nodes.remove(node)
     
@@ -170,8 +169,8 @@ def GLSA(G, S, source, target, max_res, res_min, res_name='res_cost'):
                 # done
                 break
         u_label = LML_for_this_res[0]
-        u = u_label[0]
-        l = u_label[1]
+        u = u_label[0] 
+        l = u_label[1] # noqa: E741
         logger.debug('found lexically minimal label {}'.format(u_label))
         
         L.remove(u_label)
@@ -182,7 +181,8 @@ def GLSA(G, S, source, target, max_res, res_min, res_name='res_cost'):
         # extend label for each child
         for v, e in G.succ[u].items():
             logger.debug('treating edge {} -> {} (C {} | R {})'.format(u,v,e['weight'],e[res_name]))
-            if len(paths.get(v,[])) > 0: logger.debug('      with current paths:')
+            if len(paths.get(v,[])) > 0: 
+                logger.debug('      with current paths:')
             for n in range(0,len(paths.get(v,[]))):
                 logger.debug('{} (C {} | R {})'.format(pt.print_path(paths[v][n]),labels[v][n][0],labels[v][n][1]))
             
@@ -220,13 +220,14 @@ def GLSA(G, S, source, target, max_res, res_min, res_name='res_cost'):
                 if len(labels.get(v,[])) > 0:
                     for label in labels.get(v,[]):
                         label_dominated = _is_dominated(v_label, label)
-                        if label_dominated: break
+                        if label_dominated: 
+                            break
                 
                 if label_dominated:
                     logger.debug('but label was dominated')
                 else:
                     # setup label and path
-                    if labels.get(v, None) == None:
+                    if labels.get(v, None) is None:
                         paths[v] = list()
                         labels[v] = list()
                     v_path = list(paths[u][l])

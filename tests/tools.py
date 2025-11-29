@@ -81,7 +81,7 @@ def visualize_path(G, path):
                 colors.append(lighter(max_colors[1], 100*((max_weight-abs(G[u][v]['weight']))/max_weight)))
             weights.append(2)
     
-    nx.draw(G, pos, edges=G.edges(), edge_color=colors, node_color = '#8CDCDA', width=weights)
+    nx.draw(G, pos, edgelist=G.edges(), edge_color=colors, node_color = '#8CDCDA', width=weights)
     nx.draw_networkx_labels(G, pos, labels=None, font_size=12, font_color='k', font_family='sans-serif', font_weight='normal', alpha=1.0)
     plt.show()
     
