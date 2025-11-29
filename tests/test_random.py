@@ -112,6 +112,4 @@ def test_random_run():
         plt.show()
 
 if __name__ == "__main__":
-    # This allows you to run "uv run python tests/test_random.py" 
-    # and still see output without using pytest.
     test_random_run()
