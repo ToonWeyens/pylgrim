@@ -563,7 +563,6 @@ wheels = [
 name = "pylgrim"
 source = { editable = "." }
 dependencies = [
-    { name = "matplotlib" },
     { name = "networkx" },
     { name = "numpy" },
 ]
@@ -571,13 +570,13 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "deptry" },
+    { name = "matplotlib" },
     { name = "pytest" },
     { name = "ruff" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "matplotlib", specifier = ">=3.10.7" },
     { name = "networkx", specifier = ">=3.6" },
     { name = "numpy", specifier = ">=2.3.5" },
 ]
@@ -585,6 +584,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "deptry", specifier = ">=0.24.0" },
+    { name = "matplotlib", specifier = ">=3.10.7" },
     { name = "pytest", specifier = ">=9.0.1" },
     { name = "ruff", specifier = ">=0.14.7" },
 ]

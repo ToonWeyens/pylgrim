@@ -26,8 +26,14 @@ import logging
 from . import tools as pt
 from . import path as pth
 
-#logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
+logging.getLogger("matplotlib").setLevel(logging.INFO)
+logging.getLogger("matplotlib.font_manager").setLevel(logging.INFO)
+
 logger = logging.getLogger(__name__)
+
+
 
 def TLAdynK(G, source, K, max_path_len = -1, retry_paths = False):
     """Truncated labelling algorithm for dynamic kSPP

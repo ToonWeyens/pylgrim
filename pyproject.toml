@@ -19,7 +19,6 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "matplotlib>=3.10.7",
     "networkx>=3.6",
     "numpy>=2.3.5",
 ]
@@ -38,6 +37,7 @@ packages = ["pylgrim"]
 [dependency-groups]
 dev = [
     "deptry>=0.24.0",
+    "matplotlib>=3.10.7",
     "pytest>=9.0.1",
     "ruff>=0.14.7",
 ]
