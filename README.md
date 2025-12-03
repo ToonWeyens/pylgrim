@@ -167,7 +167,7 @@ Both algorithms return results using the `pylgrim.Path` class, which inherits fr
 * Plots may be generated during tests. To debug, change `logging.WARNING` to `INFO` or `DEBUG` at the top of the relevant Python files.
 
 ## Algorithms explained
-See the full explanation of the DLA with TLAdynK algorithm and other details in [Algorithms Explained](./algorithms_explained.md]]).
+See the full explanation of the DLA with TLAdynK algorithm and other details in [Algorithms Explained](./docs/algorithms_explained.md).
 
 ## References
 [1] Di Puglia Pugliese, L. (2015). *On the shortest path problem with negative cost cycles*. DOI: 10.1007/s10589-015-9773-1
