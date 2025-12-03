@@ -11,7 +11,8 @@ logger = logging.getLogger(__name__)
 
 def test_ESPP_run():
     # create test graph
-    G = testtools.create_test_graph(add_nodes_to_0=True)
+    # G = testtools.create_test_graph(add_nodes_to_0=True)
+    G = testtools.create_test_graph(add_nodes_to_0=False)
     source = 0
     print('Testing with {} nodes'.format(len(G)))
     print('')
@@ -22,7 +23,7 @@ def test_ESPP_run():
 
     # solve for min_K number of paths
     min_K = 2
-    paths, costs = pylgrim.ESPP.DLA(G, source, min_K, max_path_len = 6)
+    paths, costs = pylgrim.ESPP.DLA(G, source, min_K, max_path_len = 6, log_summary=True)
 
     print('solution paths:')
     for node in paths:
