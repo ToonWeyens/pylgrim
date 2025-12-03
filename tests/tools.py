@@ -17,7 +17,7 @@ def create_test_graph(add_nodes_to_0=False):
     G.add_edge(0, 2, weight=-4, res_cost=np.array([0.1,0.2]))
     G.add_edge(1, 2, weight=-7, res_cost=np.array([0.1,0.2]))
     G.add_edge(1, 4, weight=5, res_cost=np.array([0.1,0.3]))
-    G.add_edge(2, 3, weight=3, res_cost=np.array([0.1,0.2]))
+    G.add_edge(2, 3, weight=2, res_cost=np.array([0.1,0.2]))
     G.add_edge(3, 1, weight=1, res_cost=np.array([0.1,0.2]))
     G.add_edge(2, 5, weight=-2, res_cost=np.array([0.1,0.2]))
     G.add_edge(5, 6, weight=2, res_cost=np.array([0.1,0.2]))

@@ -22,7 +22,7 @@ def test_ESPP_run():
     pylgrim.tools.decouple_source(G, source, source_in=source_in)
 
     # solve for min_K number of paths
-    min_K = 2
+    min_K = 1
     paths, costs = pylgrim.ESPP.DLA(G, source, min_K, max_path_len = 6, log_summary=True)
 
     print('solution paths:')

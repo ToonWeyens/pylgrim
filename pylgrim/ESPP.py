@@ -36,9 +36,6 @@ def TLAdynK(G, source, K, max_path_len = -1):
     paths[source][0] = [source]
     costs[source][0] = 0
 
-    costs2 = costs[2]
-    paths2 = paths[2]
-
     # list of nodes to treat and deque to store FIFO
     L = set([source])
     L_q = deque([source])
@@ -150,8 +147,6 @@ def TLAdynK(G, source, K, max_path_len = -1):
                             # insert new path and shift all next down as well
                             logger.debug(f'          inserting path with cost {cost_v_new} in path[{v}] at position {kv}')
                             for kv2 in range(K[v]-1, kv, -1):
-                                if paths[v][kv2-1] is None:
-                                    break
                                 costs[v][kv2] = costs[v][kv2-1]
                                 paths[v][kv2] = paths[v][kv2-1]
                                 
