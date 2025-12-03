@@ -24,22 +24,33 @@ logger = logging.getLogger(__name__)
 
 
 
-def TLAdynK(G, source, K, max_path_len = -1):
+def TLAdynK(G, source, K, paths=None, costs=None, max_path_len = -1):
     """Truncated labelling algorithm for dynamic kSPP
     (based on algorithm 3 from [1])"""
     
-    # 1. Initialization
     inf = float('inf')
 
-    paths = {n: [None] * K[n] for n in G.nodes()}
-    costs = {n: [inf] * K[n] for n in G.nodes()}
-    paths[source][0] = [source]
-    costs[source][0] = 0
+    # 1. Initialization
+    if paths is None or costs is None:
+        paths = {n: [None] * K[n] for n in G.nodes()}
+        costs = {n: [inf] * K[n] for n in G.nodes()}
+        paths[source][0] = [source]
+        costs[source][0] = 0
 
-    # list of nodes to treat and deque to store FIFO
-    L = set([source])
-    L_q = deque([source])
-    
+        # list of nodes to treat and deque to store FIFO
+        L = set([source])
+        L_q = deque([source])
+    else:
+        L = set()
+        L_q = deque()
+        for n in G.nodes():
+            # If the first path slot is used, this node has been reached
+            if paths[n][0] is not None:
+                L.add(n)
+                L_q.append(n)
+        
+        logger.debug(f'  Resuming with {len(L)} nodes in queue') 
+
     # 2. main loop for selected node
     while L_q:
         # select element FIFO
@@ -191,11 +202,16 @@ def DLA(G, source, min_K=1, output_pos = False, max_path_len=-1, log_summary=Fal
     K = {}
     for n in G.nodes():
         K[n] = min_K
+
+    # we will store paths and costs accross different TLAdynK calls
+    paths = None
+    costs = None
+    
     DLA_done = False
 
     while not DLA_done:
         # Run truncated labelling algorithm for dynamic kSPP
-        paths, costs, NCC = TLAdynK(G, source, K, max_path_len)
+        paths, costs, NCC = TLAdynK(G, source, K, paths, costs, max_path_len)
         
         # output for tests
         if log_summary:
@@ -225,12 +241,13 @@ def DLA(G, source, min_K=1, output_pos = False, max_path_len=-1, log_summary=Fal
             for n in NCC:
                 K[n] += 1
                 logger.debug('  K[{}] -> {}:'.format(n,K[n]))
+
+                # Expand the memory for these specific nodes
+                # to match the new K[n]. We append an empty slot.
+                paths[n].append(None)
+                costs[n].append(float('inf'))
             logger.debug('')
-            #print('========================================================')
-            #input("Press Enter to continue...")
-            #print('========================================================')
-            #print('')
-    
+
     # return
     rpaths = dict()
     for node in paths:

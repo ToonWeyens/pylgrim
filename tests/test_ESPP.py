@@ -32,7 +32,7 @@ def test_ESPP_run():
             print('        '+str(path)+' with cost '+str(costs[node][paths[node].index(path)]))
             
             # visualize
-            testtools.visualize_path(G, path)
+            # testtools.visualize_path(G, path)
 
     # move source in-edges back from new node
     pylgrim.tools.undecouple_source(G, source, source_in=source_in)
