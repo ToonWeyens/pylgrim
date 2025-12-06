@@ -27,8 +27,8 @@ def test_random_run():
     logger = logging.getLogger(__name__)
 
     # parameters
-    graph_size = 16
-    max_path_len = 10
+    graph_size = 20
+    max_path_len = 15
     max_res = list([1.0])
     source = 0
     weight_lims = (-1.0, 1.0)
@@ -37,7 +37,7 @@ def test_random_run():
     seed = random.randint(-2**31-1, 2**31)
     target = random.randint(1, graph_size)
 
-    # Debug a failed run
+    # If you want to debug a failed run
     seed = 335599463
     target = 14
 
