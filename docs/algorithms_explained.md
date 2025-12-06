@@ -63,20 +63,21 @@ This stands for **Dynamic Labeling Approach** [1, algorithm 4] with **Truncated 
   3. **Negative Cost Check** - $\exists \bar{k} : v \in \pi_{su}^{\bar{k}}$ such that $c(\pi_{su}^{\bar{k}}) + c_{uv} < c(\pi_{sv}^1)$: There exist a negative cost path better than current best path to $v$
 - In this case we need to increase $K_l$ for each $l$ in the NCC that we just identified
 
-Notes on condition 3, at the risk of being pedantic:
-  - Assuming condition 2 was met, we know that all paths to $u$ go through $v$
-  - If we denote this by $s \rightarrow A \rightarrow v \rightarrow B \rightarrow u$, which we are considering extending to $v$, forming a cycle $s \rightarrow A \rightarrow v \rightarrow B \rightarrow u \rightarrow v$
-  - If the current best path to $v$ is the subset of the best path $A$ to $u$:
-    - If the total cost $s \rightarrow A \rightarrow v \rightarrow B \rightarrow u \rightarrow v$ is lower than $s \rightarrow A \rightarrow v$, we obviously have a NCC: We should increase $K_u$ to deal with it
-    - If the total cost $s \rightarrow A \rightarrow v \rightarrow B \rightarrow u \rightarrow v$ is not lower than $s \rightarrow A \rightarrow v$, we can simply skip this extension as our current list of paths to $v$ is already better
-  - If the current best path to $v$, let's say $C$, is better than subset $A$ of the best path to $u$:
-    - If the total cost $s \rightarrow A \rightarrow v \rightarrow B \rightarrow u \rightarrow v$ is lower than $s \rightarrow C \rightarrow v$, we are certain it is an NCC that was even able to overcome the advantage of path $C$: We should increase $K_u$ to deal with it
-    - If the total cost $s \rightarrow A \rightarrow v \rightarrow B \rightarrow u \rightarrow v$ is not lower than $s \rightarrow C \rightarrow v$, it might still be that there is an NCC that we can only detect by using $C$ instead of $A$ to make the comparison fair: We can safely skip it for now, and wait for this situation to occur later when $v$ is extended from $C$ instead of $A$. We can be absolutely sure that this will happen as due the propagation mechanism of the algorithm, the node $v$ is waiting in the queue $L$
-  - If the current best path to $v$, let's say $D$, is worse than subset $A$ of the best path to $u$: This is a logical impossibility 
-    - It is possible for new paths to have been found to $v$ that have not yet ended up in $u$'s paths, but they would have been equal or better
-    - All paths to $u$ that have gone through $v$ must necessarily be worse or equal to the best path to $v$
-  - In summary all these conditions boil down to the simple check above
+Notes on condition 3, to make this crystal clear:
+- Assuming condition 2 was met, we know that all paths to $u$ go through $v$
+- If we denote this by $s \rightarrow A \rightarrow v \rightarrow B \rightarrow u$, which we are considering extending to $v$, forming a cycle $s \rightarrow A \rightarrow v \rightarrow B \rightarrow u \rightarrow v$
+- We will now call $s \rightarrow A \rightarrow v$ a prefix of the path to $u$ and $s \rightarrow A \rightarrow v \rightarrow B \rightarrow u \rightarrow v$ the extended path to $v$
+- The resulting situation is summarized in the following table:
+    |                                                | Extended path is better than current best path to $v$ | Extended path is worse than current best path to $v$ |
+    | ---------------------------------------------- | ----- | ----- |
+    | current best path to $v$ is prefix             | NCC: We should increase $K$  | We can skip safely |
+    | current best path to $v$ is better than prefix | Certainly NCC, as it was even able to overcome the advantage of path over prefix: We should increase $K$ | Might be a NCC that we can only detect with fair comparison, replacing prefix by best path to $v$. This will certainly happen as due the propagation mechanism of the algorithm, the node $v$ is waiting in the queue $L$: We can skip safely |
+    | current best path to $v$ is worse than prefix  | Logical impossibility | Logical impossibility |
+- The last row is a logical impossibility because:
+  - It is possible for new paths to have been found to $v$ that have not yet ended up in $u$'s paths, but they would have been equal or better
+  - All paths to $u$ that have gone through $v$ must necessarily be worse or equal to the best path to $v$
   
+
 #### Restarting the Algorithm with increased memory
 - We need to restart the algorithm when we increase the memory $K_l$ for all nodes $l$ that were part of the NCC
 - However, we do not need to start working from scratch again. This is a major advantage of the DLA approach

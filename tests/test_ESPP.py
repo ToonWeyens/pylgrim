@@ -23,7 +23,7 @@ def test_ESPP_run():
 
     # solve for min_K number of paths
     min_K = 1
-    paths, costs = pylgrim.ESPP.DLA(G, source, min_K, max_path_len = 6, log_summary=True)
+    paths, costs = pylgrim.ESPP.DLA(G, source, min_K, log_summary=True)
 
     print('solution paths:')
     for node in paths:
