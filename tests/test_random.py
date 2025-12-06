@@ -5,12 +5,7 @@ import matplotlib.pyplot as plt
 import logging
 import pylgrim
 import random
-import timeit
-
-def wrapper(func, *args, **kwargs):
-    def wrapped():
-        return func(*args, **kwargs)
-    return wrapped
+import time
 
 def print_path(G, path):
     CHECK = 0.0
@@ -46,6 +41,9 @@ def test_random_run():
     seed = 335599463
     target = 14
 
+    # set random seed to make sure edges are also the same
+    random.seed(seed)
+
     print('source = {}, target = {}'.format(source, target))
     print('maximum length of path: {}'.format(max_path_len))
     print('')
@@ -68,16 +66,15 @@ def test_random_run():
     G_pre, res_min = pylgrim.ESPPRC.preprocess(G, source, target, max_res)
 
     # ESPPRC
-    wrapped_ESPPRC = wrapper(pylgrim.ESPPRC.GSSA, G_pre, source, target, max_res, res_min)
-    time_ESPPRC = timeit.timeit(wrapped_ESPPRC, number=1)
-    shortest_path, shortest_path_label = wrapped_ESPPRC()
+    t0 = time.perf_counter()
+    shortest_path, shortest_path_label = pylgrim.ESPPRC.GSSA(G_pre, source, target, max_res, res_min)
+    time_ESPPRC = time.perf_counter() - t0
 
     # ESPP
-    wrapped_ESPP = wrapper(pylgrim.ESPP.DLA, G, source, min_K=1, log_summary=True)
-    time_ESPP = timeit.timeit(wrapped_ESPP, number=1)
-    paths, costs = wrapped_ESPP()
+    t0 = time.perf_counter()
+    paths, costs = pylgrim.ESPP.DLA(G, source, min_K=1, log_summary=True)
+    time_ESPP = time.perf_counter() - t0
     node = target
-    path = paths[node][0]
     path = paths[node][0]
 
     print('ESPPRC:')
