@@ -32,8 +32,8 @@ def test_random_run():
     logger = logging.getLogger(__name__)
 
     # parameters
-    graph_size = 30
-    max_path_len = 6
+    graph_size = 16
+    max_path_len = 10
     max_res = list([1.0])
     source = 0
     weight_lims = (-1.0, 1.0)
@@ -42,9 +42,9 @@ def test_random_run():
     seed = random.randint(-2**31-1, 2**31)
     target = random.randint(1, graph_size)
 
-    # OVERWRITE WITH FAILING EXAMPLE
-    #seed = -555578251
-    #target = 9
+    # Debug a failed run
+    seed = 335599463
+    target = 14
 
     print('source = {}, target = {}'.format(source, target))
     print('maximum length of path: {}'.format(max_path_len))
@@ -73,7 +73,7 @@ def test_random_run():
     shortest_path, shortest_path_label = wrapped_ESPPRC()
 
     # ESPP
-    wrapped_ESPP = wrapper(pylgrim.ESPP.DLA, G, source, min_K=1, max_path_len=max_path_len)
+    wrapped_ESPP = wrapper(pylgrim.ESPP.DLA, G, source, min_K=1, log_summary=True)
     time_ESPP = timeit.timeit(wrapped_ESPP, number=1)
     paths, costs = wrapped_ESPP()
     node = target
@@ -101,6 +101,7 @@ def test_random_run():
     if check_costs[0] != check_costs[1]:
         print('WARNING: costs are not equal: {} vs {}'.format(*check_costs))
         print('(seed was equal to {})'.format(seed))
+        print('The most probably explanation is that max_path_len is too small for ESPPRC to find the optimal path.')
 
         pos = nx.circular_layout(G)
         nx.draw(G, pos)
