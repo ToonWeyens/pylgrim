@@ -31,10 +31,10 @@ def create_test_graph(add_nodes_to_0=False):
 
     return G
 
-def lighter(color, percent):
+def _lighter(color, percent):
     """Makes a color lighter. Adapted from https://stackoverflow.com/a/28033054.
     Assumes color is rgb between (0, 0, 0) and (255, 255, 255)"""
-    color = np.array(hex2RGB(color))
+    color = np.array(_hex2RGB(color))
     white = np.array([255, 255, 255])
     vector = white-color
     if percent < 0.0 or percent > 100.0:
@@ -42,7 +42,7 @@ def lighter(color, percent):
     
     return RGB2hex(color + vector * percent/100.0)
 
-def hex2RGB(h):
+def _hex2RGB(h):
     """Returns an RGB tuple for a hex string.
     Adapted from https://stackoverflow.com/a/29643643."""
     if h[0] != '#' or len(h) !=7 :
@@ -50,7 +50,7 @@ def hex2RGB(h):
     
     return tuple(int(h.lstrip('#')[i:i+2], 16) for i in (0, 2 ,4))
 
-def RGB2hex(rgb):
+def _RGB2hex(rgb):
     """Returns an hex string for an RGB tuple.
     Adapted from from https://stackoverflow.com/a/214657."""
     if len(rgb) != 3 or np.amax(rgb) > 255 or np.amin(rgb) < 0:
@@ -76,9 +76,9 @@ def visualize_path(G, path):
             weights.append(3)
         else:
             if G[u][v]['weight'] > 0:
-                colors.append(lighter(max_colors[0], 100*((max_weight-abs(G[u][v]['weight']))/max_weight)))
+                colors.append(_lighter(max_colors[0], 100*((max_weight-abs(G[u][v]['weight']))/max_weight)))
             else:
-                colors.append(lighter(max_colors[1], 100*((max_weight-abs(G[u][v]['weight']))/max_weight)))
+                colors.append(_lighter(max_colors[1], 100*((max_weight-abs(G[u][v]['weight']))/max_weight)))
             weights.append(2)
     
     nx.draw(G, pos, edgelist=G.edges(), edge_color=colors, node_color = '#8CDCDA', width=weights)

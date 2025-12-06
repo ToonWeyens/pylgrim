@@ -2,11 +2,14 @@
 #   * decouple_source and undecouple_source to move all in-edges from a source node to a duplicate and vice versa.
 #   * print_path to pretty print a path.
 #   * count_elems to count the number of elements in a path and return a dictionary keyed with a label.
+#   * print_dynamic_k to dynamically print K values as bars in the terminal.
 #
 # Author:
 #   Toon Weyens
 
 import logging
+import sys
+import shutil
 
 #logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -72,3 +75,77 @@ def count_elems(path):
     for n in path:
         res[n] = res.get(n,0)+1
     return res
+
+
+# Unicode blocks representing 1/8th increments for high-resolution bars
+_BLOCKS = ["", "▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"]
+
+
+def print_dynamic_k(K, previous_lines_printed=0, label="K Values", div_factor=1):
+    """
+    Visualizes K by padding lines with physical spaces to overwrite old text.
+    No weird ANSI reset codes.
+    """
+    
+    # 1. Clear previous output
+    if previous_lines_printed > 0:
+        # Move cursor up
+        sys.stdout.write(f"\033[{previous_lines_printed}F")
+
+    sorted_nodes = sorted(K.keys())
+    
+    # Get current terminal width
+    term_width = shutil.get_terminal_size((80, 20)).columns 
+    
+    # Reserve space for text like "Node XX: " and " (123)"
+    # We subtract a bit extra to be safe from auto-wrapping
+    max_bar_width = term_width - 25 
+    
+    max_val = max(K.values()) if K else 1
+    if max_val == 0: max_val = 1
+    
+    lines_to_print = []
+    
+    # Header: Pad with spaces to fill the width
+    header = f"--- {label} Monitor ---"
+    padding = " " * (term_width - len(header) - 1)
+    lines_to_print.append(header + padding)
+
+    for n in sorted_nodes:
+        val = K[n]
+        
+        # --- SCALING LOGIC ---
+        val_scaled = val / div_factor
+
+        # If scaled value fits, use it. If not, scale down relative to max.
+        if (max_val / div_factor) > max_bar_width:
+             display_val = (val_scaled / (max_val / div_factor)) * max_bar_width
+        else:
+            display_val = val_scaled
+
+        # Build the bar
+        full_blocks = int(display_val)
+        remainder = int((display_val - full_blocks) * 8)
+        bar = ("█" * full_blocks) + _BLOCKS[remainder]
+        
+        # --- THE FIX: MANUAL PADDING ---
+        # 1. Build the content
+        content = f"Node {n:>3}: {bar} ({val})"
+        
+        # 2. Calculate how many spaces we need to reach the edge of the terminal
+        # We use -1 to ensure we don't accidentally trigger a newline wrap
+        spaces_needed = term_width - len(content) - 1
+        
+        if spaces_needed > 0:
+            padding = " " * spaces_needed
+        else:
+            padding = ""
+            
+        # 3. Append content + physical spaces
+        lines_to_print.append(content + padding)
+
+    # Print block
+    sys.stdout.write("\n".join(lines_to_print) + "\n")
+    sys.stdout.flush()
+
+    return len(lines_to_print)

@@ -5,12 +5,7 @@ import matplotlib.pyplot as plt
 import logging
 import pylgrim
 import random
-import timeit
-
-def wrapper(func, *args, **kwargs):
-    def wrapped():
-        return func(*args, **kwargs)
-    return wrapped
+import time
 
 def print_path(G, path):
     CHECK = 0.0
@@ -32,27 +27,29 @@ def test_random_run():
     logger = logging.getLogger(__name__)
 
     # parameters
-    graph_size = 30
-    max_path_len = 6
+    graph_size = 15
+    max_path_len = 15
     max_res = list([1.0])
     source = 0
     weight_lims = (-1.0, 1.0)
 
     # set seed and target
     seed = random.randint(-2**31-1, 2**31)
-    target = random.randint(1, graph_size)
+    
+    # If you want to debug a failed run
+    seed = -1213136599
+    
+    # set random seed to make sure edges are also the same
+    random.seed(seed)
 
-    # OVERWRITE WITH FAILING EXAMPLE
-    #seed = -555578251
-    #target = 9
+    # create test graph: inverted gnc_graph or gnp random graph
+    G = nx.gnp_random_graph(graph_size, p=0.2, directed=True, seed=seed)
+    target = G.number_of_nodes() 
+    G.add_node(target)
 
     print('source = {}, target = {}'.format(source, target))
     print('maximum length of path: {}'.format(max_path_len))
     print('')
-
-    # create test graph: inverted gnc_graph or gnp random graph
-    #G = nx.generators.gnc_graph(graph_size).reverse(copy=False)
-    G = nx.gnp_random_graph(graph_size, p=0.2, directed=True, seed=seed)
 
     # add one resource to limit path length and one for weight
     G.graph['n_res']=1
@@ -68,16 +65,15 @@ def test_random_run():
     G_pre, res_min = pylgrim.ESPPRC.preprocess(G, source, target, max_res)
 
     # ESPPRC
-    wrapped_ESPPRC = wrapper(pylgrim.ESPPRC.GSSA, G_pre, source, target, max_res, res_min)
-    time_ESPPRC = timeit.timeit(wrapped_ESPPRC, number=1)
-    shortest_path, shortest_path_label = wrapped_ESPPRC()
+    t0 = time.perf_counter()
+    shortest_path, shortest_path_label = pylgrim.ESPPRC.GSSA(G_pre, source, target, max_res, res_min)
+    time_ESPPRC = time.perf_counter() - t0
 
     # ESPP
-    wrapped_ESPP = wrapper(pylgrim.ESPP.DLA, G, source, min_K=1, max_path_len=max_path_len)
-    time_ESPP = timeit.timeit(wrapped_ESPP, number=1)
-    paths, costs = wrapped_ESPP()
+    t0 = time.perf_counter()
+    paths, costs = pylgrim.ESPP.DLA(G, source, min_K=1, log_summary=True)
+    time_ESPP = time.perf_counter() - t0
     node = target
-    path = paths[node][0]
     path = paths[node][0]
 
     print('ESPPRC:')
@@ -101,15 +97,16 @@ def test_random_run():
     if check_costs[0] != check_costs[1]:
         print('WARNING: costs are not equal: {} vs {}'.format(*check_costs))
         print('(seed was equal to {})'.format(seed))
+        print('The most probably explanation is that max_path_len is too small for ESPPRC to find the optimal path.')
 
         pos = nx.circular_layout(G)
-        nx.draw(G, pos)
-        edge_labels = nx.get_edge_attributes(G,'weight')
-        for key in edge_labels:
-            edge_labels[key] = round(edge_labels[key], 2)
-        nx.draw_networkx_edge_labels(G, pos, edge_labels)
-        nx.draw_networkx_labels(G, pos, labels=None, font_size=12, font_color='k', font_family='sans-serif', font_weight='normal', alpha=1.0)
-        plt.show()
+        # nx.draw(G, pos)
+        # edge_labels = nx.get_edge_attributes(G,'weight')
+        # for key in edge_labels:
+        #     edge_labels[key] = round(edge_labels[key], 2)
+        # nx.draw_networkx_edge_labels(G, pos, edge_labels)
+        # nx.draw_networkx_labels(G, pos, labels=None, font_size=12, font_color='k', font_family='sans-serif', font_weight='normal', alpha=1.0)
+        # plt.show()
 
 if __name__ == "__main__":
     test_random_run()

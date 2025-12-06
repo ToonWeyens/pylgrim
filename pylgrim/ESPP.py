@@ -15,8 +15,8 @@ import logging
 from . import tools as pt
 from . import path as pth
 
-logging.basicConfig(level=logging.DEBUG)
-# logging.basicConfig(level=logging.WARNING)
+# logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
 logging.getLogger("matplotlib").setLevel(logging.INFO)
 logging.getLogger("matplotlib.font_manager").setLevel(logging.INFO)
 
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 
-def TLAdynK(G, source, K, paths=None, costs=None, max_path_len = -1):
+def TLAdynK(G, source, K, paths=None, costs=None):
     """Truncated labelling algorithm for dynamic kSPP
     (based on algorithm 3 from [1])"""
     
@@ -192,7 +192,7 @@ def TLAdynK(G, source, K, paths=None, costs=None, max_path_len = -1):
     return paths, costs, []
 
 
-def DLA(G, source, min_K=1, output_pos = False, max_path_len=-1, log_summary=False):
+def DLA(G, source, min_K=1, output_pos = False, log_summary=False):
     """Dynamic labelling algorithm
     (based on algorithm 4 from [1])"""
     
@@ -209,9 +209,11 @@ def DLA(G, source, min_K=1, output_pos = False, max_path_len=-1, log_summary=Fal
     
     DLA_done = False
 
+    viz_lines = 0
+
     while not DLA_done:
         # Run truncated labelling algorithm for dynamic kSPP
-        paths, costs, NCC = TLAdynK(G, source, K, paths, costs, max_path_len)
+        paths, costs, NCC = TLAdynK(G, source, K, paths, costs)
         
         # output for tests
         if log_summary:
@@ -246,6 +248,9 @@ def DLA(G, source, min_K=1, output_pos = False, max_path_len=-1, log_summary=Fal
                 # to match the new K[n]. We append an empty slot.
                 paths[n].append(None)
                 costs[n].append(float('inf'))
+
+            if log_summary:
+                viz_lines = pt.print_dynamic_k(K, previous_lines_printed=viz_lines)
             logger.debug('')
 
     # return
