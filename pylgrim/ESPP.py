@@ -15,8 +15,8 @@ import logging
 from . import tools as pt
 from . import path as pth
 
-logging.basicConfig(level=logging.DEBUG)
-# logging.basicConfig(level=logging.WARNING)
+# logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
 logging.getLogger("matplotlib").setLevel(logging.INFO)
 logging.getLogger("matplotlib.font_manager").setLevel(logging.INFO)
 
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 
-def TLAdynK(G, source, K, paths=None, costs=None):
+def TLAdynK(G, source, K, L, paths=None, costs=None):
     """Truncated labelling algorithm for dynamic kSPP
     (based on algorithm 3 from [1])"""
     
@@ -37,14 +37,7 @@ def TLAdynK(G, source, K, paths=None, costs=None):
         paths[source][0] = [source]
         costs[source][0] = 0
 
-        # list of nodes to treat and deque to store FIFO
-        L = set([source])
-        L_q = deque([source])
-    else:
-        # Refill the queue starting from the source only; paths will be rebuilt
-        L = set([source])
-        L_q = deque([source])
-        logger.debug('  Resuming with source only in queue')
+    L_q = deque(L)
 
     # 2. main loop for selected node
     while L_q:
@@ -187,7 +180,7 @@ def TLAdynK(G, source, K, paths=None, costs=None):
     return paths, costs, []
 
 
-def DLA(G, source, min_K=1, output_pos = False, log_summary=False):
+def DLA(G, source, min_K=1, output_pos = False, log_summary=False, plot_K_updates=False):
     """Dynamic labelling algorithm
     (based on algorithm 4 from [1])"""
     
@@ -202,14 +195,14 @@ def DLA(G, source, min_K=1, output_pos = False, log_summary=False):
     # we will store paths and costs accross different TLAdynK calls
     paths = None
     costs = None
+    L = set([source])
     
     DLA_done = False
 
     viz_lines = 0
 
     while not DLA_done:
-        # Run truncated labelling algorithm for dynamic kSPP
-        paths, costs, NCC = TLAdynK(G, source, K, paths, costs)
+        paths, costs, NCC = TLAdynK(G, source, K, L, paths, costs)
         
         # output for tests
         if log_summary:
@@ -231,7 +224,7 @@ def DLA(G, source, min_K=1, output_pos = False, log_summary=False):
                     logger.info('  {}: {} for {}'.format(c_id,costs_sorted[c],path_short))
             logger.info('')
         
-        # New strategy: increase K for all nodes that are at their limit (fully populated)
+        # Increase K for all nodes that are at their limit (fully populated)
         saturated_nodes = [n for n in G.nodes() if len(costs[n]) > 0 and costs[n][-1] < inf]
 
         if not saturated_nodes:
@@ -245,8 +238,9 @@ def DLA(G, source, min_K=1, output_pos = False, log_summary=False):
             # Expand the memory for this node to match the new K[n].
             paths[n].append(None)
             costs[n].append(inf)
+            L.add(n)
 
-        if log_summary:
+        if plot_K_updates:
             viz_lines = pt.print_dynamic_k(K, previous_lines_printed=viz_lines)
         logger.debug('')
 
