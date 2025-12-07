@@ -1,7 +1,7 @@
 """
-Quick plotting helper for the failing random seed without rerunning ESPP/ESPPRC.
+Quick plotting helper for a small failing random seed without rerunning ESPP/ESPPRC.
 
-It rebuilds the random graph for seed -1213136599 and draws:
+It rebuilds the random graph for seed -948430401 and graph_size=5, max_path_len=6, and draws:
 - ESPPRC best path (hardcoded from prior run) in green.
 - ESPP (min_K=1) best path (hardcoded from prior run) in red.
 """
@@ -14,9 +14,9 @@ import pylgrim
 
 
 def plot_hardcoded_seed():
-    seed = -1213136599
-    graph_size = 15
-    max_path_len = 15
+    seed = -948430401
+    graph_size = 5
+    max_path_len = 6
     max_res = [1.0]
     source = 0
     weight_lims = (-1.0, 1.0)
@@ -35,8 +35,8 @@ def plot_hardcoded_seed():
     pylgrim.tools.decouple_source(G, source, source_in=target)
 
     # Hardcoded paths from earlier ESPPRC/ESPP runs (iterables of node IDs)
-    espprc_nodes = [0, 10, 4, 11, 3, 2, 9, 12, 7, 14, 13, 5, 15]
-    espp_nodes = [0, 10, 4, 14, 13, 3, 2, 9, 12, 6, 5, 15]
+    espprc_nodes = [0, 4, 3, 1, 5]
+    espp_nodes = [0, 1, 2, 4, 5]
 
     def path_to_edges(nodes):
         return [(nodes[i], nodes[i + 1]) for i in range(len(nodes) - 1)]

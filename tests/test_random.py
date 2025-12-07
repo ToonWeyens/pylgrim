@@ -27,8 +27,8 @@ def test_random_run():
     logger = logging.getLogger(__name__)
 
     # parameters
-    graph_size = 15
-    max_path_len = 15
+    graph_size = 5
+    max_path_len = 6
     max_res = list([1.0])
     source = 0
     weight_lims = (-1.0, 1.0)
@@ -37,7 +37,7 @@ def test_random_run():
     seed = random.randint(-2**31-1, 2**31)
     
     # If you want to debug a failed run
-    seed = -1213136599
+    seed = -948430401
     
     # set random seed to make sure edges are also the same
     random.seed(seed)

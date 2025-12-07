@@ -16,3 +16,9 @@ Options suggested to fix while retaining reuse:
 - Or rerun TLAdynK from scratch after a K increase (simpler, loses reuse but correct).
 
 Key observation: Re-seeding `L` (including the source) without restoring discarded candidates does not recover the missing optimal path on this seed. A mechanism to bring back pruned prefixes is required.
+
+## Similar problems:
+- `seed=-1370462526` with 10 nodes and path length 10
+- `seed=1777749916` with 6 nodes and path length 7
+- `seed=-948430401` with 5 nodes and path length 6
+- I couldn't find one with 4 nodes yet
