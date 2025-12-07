@@ -15,8 +15,8 @@ import logging
 from . import tools as pt
 from . import path as pth
 
-# logging.basicConfig(level=logging.DEBUG)
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.WARNING)
 logging.getLogger("matplotlib").setLevel(logging.INFO)
 logging.getLogger("matplotlib.font_manager").setLevel(logging.INFO)
 
@@ -41,15 +41,10 @@ def TLAdynK(G, source, K, paths=None, costs=None):
         L = set([source])
         L_q = deque([source])
     else:
-        L = set()
-        L_q = deque()
-        for n in G.nodes():
-            # If the first path slot is used, this node has been reached
-            if paths[n][0] is not None:
-                L.add(n)
-                L_q.append(n)
-        
-        logger.debug(f'  Resuming with {len(L)} nodes in queue') 
+        # Refill the queue starting from the source only; paths will be rebuilt
+        L = set([source])
+        L_q = deque([source])
+        logger.debug('  Resuming with source only in queue')
 
     # 2. main loop for selected node
     while L_q:
@@ -197,6 +192,7 @@ def DLA(G, source, min_K=1, output_pos = False, log_summary=False):
     (based on algorithm 4 from [1])"""
     
     logger.info('source: {}'.format(source))
+    inf = float('inf')
     
     # initialize K label to minimal value and not done
     K = {}
@@ -235,23 +231,24 @@ def DLA(G, source, min_K=1, output_pos = False, log_summary=False):
                     logger.info('  {}: {} for {}'.format(c_id,costs_sorted[c],path_short))
             logger.info('')
         
-        # check for absence negative cost cycles
-        if NCC == []:
+        # New strategy: increase K for all nodes that are at their limit (fully populated)
+        saturated_nodes = [n for n in G.nodes() if len(costs[n]) > 0 and costs[n][-1] < inf]
+
+        if not saturated_nodes:
             break
-        else:
-            logger.debug('updating K:')
-            for n in NCC:
-                K[n] += 1
-                logger.debug('  K[{}] -> {}:'.format(n,K[n]))
 
-                # Expand the memory for these specific nodes
-                # to match the new K[n]. We append an empty slot.
-                paths[n].append(None)
-                costs[n].append(float('inf'))
+        logger.debug('updating K for saturated nodes:')
+        for n in saturated_nodes:
+            K[n] += 1
+            logger.debug('  K[{}] -> {}:'.format(n, K[n]))
 
-            if log_summary:
-                viz_lines = pt.print_dynamic_k(K, previous_lines_printed=viz_lines)
-            logger.debug('')
+            # Expand the memory for this node to match the new K[n].
+            paths[n].append(None)
+            costs[n].append(inf)
+
+        if log_summary:
+            viz_lines = pt.print_dynamic_k(K, previous_lines_printed=viz_lines)
+        logger.debug('')
 
     # return
     rpaths = dict()
