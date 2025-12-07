@@ -100,13 +100,13 @@ def test_random_run():
         print('The most probably explanation is that max_path_len is too small for ESPPRC to find the optimal path.')
 
         pos = nx.circular_layout(G)
-        # nx.draw(G, pos)
-        # edge_labels = nx.get_edge_attributes(G,'weight')
-        # for key in edge_labels:
-        #     edge_labels[key] = round(edge_labels[key], 2)
-        # nx.draw_networkx_edge_labels(G, pos, edge_labels)
-        # nx.draw_networkx_labels(G, pos, labels=None, font_size=12, font_color='k', font_family='sans-serif', font_weight='normal', alpha=1.0)
-        # plt.show()
+        nx.draw(G, pos)
+        edge_labels = nx.get_edge_attributes(G,'weight')
+        for key in edge_labels:
+            edge_labels[key] = round(edge_labels[key], 2)
+        nx.draw_networkx_edge_labels(G, pos, edge_labels)
+        nx.draw_networkx_labels(G, pos, labels=None, font_size=12, font_color='k', font_family='sans-serif', font_weight='normal', alpha=1.0)
+        plt.show()
 
 if __name__ == "__main__":
     test_random_run()
