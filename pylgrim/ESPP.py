@@ -15,8 +15,8 @@ import logging
 from . import tools as pt
 from . import path as pth
 
-# logging.basicConfig(level=logging.DEBUG)
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.WARNING)
 logging.getLogger("matplotlib").setLevel(logging.INFO)
 logging.getLogger("matplotlib.font_manager").setLevel(logging.INFO)
 
@@ -47,16 +47,18 @@ def TLAdynK(G, source, K, L, paths=None, costs=None):
         logger.debug(f'  Popping element {u} with current paths')
         for n in range(K[u]):
             if paths[u][n] is None:
-                break
-            logger.debug(f'    {n}: {pt.print_path(paths[u][n])} ({costs[u][n]})')
+                logger.debug(f'    {n}: <empty slot>')
+            else:
+                logger.debug(f'    {n}: {pt.print_path(paths[u][n])} ({costs[u][n]})')
 
         # extend label for each child
         for v, e in G.succ[u].items():
             logger.debug(f'    treating extension to {v}, weight = {e["weight"]} with current paths:')
             for n in range(K[v]):
                 if paths[v][n] is None:
-                    break
-                logger.debug(f'      {n}: {pt.print_path(paths[v][n])} ({costs[v][n]})')
+                    logger.debug(f'      {n}: <empty slot>')
+                else:
+                    logger.debug(f'      {n}: {pt.print_path(paths[v][n])} ({costs[v][n]})')
             logger.debug('')
 
             # error if the source is a child. The in-edges of the source need to be separated from the out-edges.
@@ -98,7 +100,7 @@ def TLAdynK(G, source, K, L, paths=None, costs=None):
                         NCC_conds[1] = False
                         break
                 # logger.debug(f'      test 1 (elementarity): {NCC_conds[1]} because no elementary path')
-
+                    
             # unavoidable NCC detected
             if all(NCC_conds):
                 # return all the nodes involved in the NCC
@@ -107,11 +109,11 @@ def TLAdynK(G, source, K, L, paths=None, costs=None):
 
                 logger.debug(f'      unavoidable NCC found with nodes {NCC}:')             
                 return paths, costs, NCC
-                    
+            
             else:
                 # Loop over all paths of u.
                 for ku in range(K[u]):
-                    logger.debug(f'      extending from path {ku} of node {u}')
+                    logger.debug(f'      Attempting extension to {v} from path {ku} of node {u}')
 
                     path_u = paths[u][ku]
                     if path_u is None: 
@@ -170,7 +172,7 @@ def TLAdynK(G, source, K, L, paths=None, costs=None):
                     break
                 logger.debug('      {}({})'.format(pt.print_path(paths[v][n]),costs[v][n]))
             logger.debug('')
-        logger.debug('  {} elements in queue'.format(len(L)))
+        logger.debug(f'  {len(L)} elements in queue: {L}')
         logger.debug('')
         #print('  ------------------------------------------------------')
         #input("  Press Enter to continue...")
@@ -195,13 +197,33 @@ def DLA(G, source, min_K=1, output_pos = False, log_summary=False, plot_K_update
     # we will store paths and costs accross different TLAdynK calls
     paths = None
     costs = None
-    L = set([source])
     
     DLA_done = False
 
     viz_lines = 0
 
     while not DLA_done:
+        # Increase K for all nodes that are at their limit (fully populated)
+        if costs is None:
+            saturated_nodes = []
+        else:
+            saturated_nodes = [n for n in G.nodes() if len(costs[n]) > 0 and costs[n][-1] < inf]
+
+        logger.debug('updating K for saturated nodes:')
+        L = set([source])
+        for n in saturated_nodes:
+            K[n] += 1
+            logger.debug('  K[{}] -> {}:'.format(n, K[n]))
+
+            # Expand the memory for this node to match the new K[n].
+            paths[n].append(None)
+            costs[n].append(inf)
+            L.add(n)
+
+            # Also add the nodes that flow into the saturated nodes
+            for in_edges in G.in_edges(n):
+                L.add(in_edges[0])
+
         paths, costs, NCC = TLAdynK(G, source, K, L, paths, costs)
         
         # output for tests
@@ -224,21 +246,8 @@ def DLA(G, source, min_K=1, output_pos = False, log_summary=False, plot_K_update
                     logger.info('  {}: {} for {}'.format(c_id,costs_sorted[c],path_short))
             logger.info('')
         
-        # Increase K for all nodes that are at their limit (fully populated)
-        saturated_nodes = [n for n in G.nodes() if len(costs[n]) > 0 and costs[n][-1] < inf]
-
-        if not saturated_nodes:
+        if len(NCC) == 0:
             break
-
-        logger.debug('updating K for saturated nodes:')
-        for n in saturated_nodes:
-            K[n] += 1
-            logger.debug('  K[{}] -> {}:'.format(n, K[n]))
-
-            # Expand the memory for this node to match the new K[n].
-            paths[n].append(None)
-            costs[n].append(inf)
-            L.add(n)
 
         if plot_K_updates:
             viz_lines = pt.print_dynamic_k(K, previous_lines_printed=viz_lines)
